@@ -1,4 +1,5 @@
 /* eslint-disable prefer-destructuring */
+
 require('dotenv').config();
 require('./config/database');
 
