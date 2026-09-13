@@ -48,6 +48,7 @@ const CampaignRequestSchema = new mongoose.Schema({
     required: true
   }
 }, {
+    //To record the Time of creation
   timestamps: true
 });
 
