@@ -128,3 +128,14 @@ Check out the wireframes sketching out layout and flow of the app covering the s
 
 
 ### Outsource partners routes
+| Method | Route | Access | Success | Errors | Notes |
+|--------|-------|--------|---------|--------|-------|
+| GET | `outsource/:id` | outsource | `200 OK` | `401` unauthenticated · `404` no outsource profile | Populates the outsource partner's own profile page |
+| PUT | `outsource/:id` | outsource | `200 OK` | `400` validation · `401` unauthenticated | "Save changes" on the outsource profile page |
+| GET | `outsource/requests` | outsource (own only) | `200 OK` | `401` unauthenticated | Populates the incoming outsource-requests list — requests sent by a Campaign Manager awaiting accept/reject |
+| GET | `outsource/requests/:id` | outsource (assigned only) | `200 OK` | `403` not assigned · `404` not found | Backs the request detail view before deciding to accept/reject |
+| PUT | `outsource/requests/:id/accept` | outsource (assigned, `pending` only) | `200 OK` | `403` not assigned · `404` not found · `409` already decided | "Accept" button — flips the request to accepted and unlocks the related task(s) |
+| PUT | `outsource/requests/:id/reject` | outsource (assigned, `pending` only) | `200 OK` | `400` reason required · `403` not assigned · `404` not found · `409` already decided | "Reject" button — requires a reason, which is relayed back to the Campaign Manager |
+| GET | `outsource/tasks` | outsource (own only) | `200 OK` | `401` unauthenticated | Populates the outsource partner's task list — only tasks assigned to them, never other partners' work |
+| GET | `outsource/tasks/:id` | outsource (assigned only) | `200 OK` | `403` not assigned · `404` not found | Backs the task detail view; campaign is populated with limited fields only (e.g. `title`, `deadline`) — never full campaign details |
+| PUT | `outsource/tasks/:id/status` | outsource (assigned only) | `200 OK` | `400` invalid status transition · `403` not assigned · `404` not found | Moves the task through its status enum (e.g. `in_progress` → `submitted` → `revisions_requested` → `completed`) |
