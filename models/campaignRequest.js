@@ -1,60 +1,67 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const { GOALS_BY_TYPE, CAMPAIGN_TYPES } = require("../constants/campaignTaxonomy");
 
-const CampaignRequestSchema = new mongoose.Schema({
-  clinetId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Client',
-    required: true
-  },
+const campaignRequestSchema = new mongoose.Schema({
+    clientId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Client",
+        required: true
+    },
 
-  title: {
-    type: String,
-    required: true
-  },
+    title: {
+        type: String,
+        required: true
+    },
 
-  campaignType: {
-    type: String,
-    enum: ['social media', 'sem', 'print', 'event'],
-    required: true
-  },
+    description: {
+        type: String
+    },
 
-  goal: {
-    type: String,
-    required: true
-  },
+    campaignType: {
+        type: String,
+        enum: CAMPAIGN_TYPES,
+        required: true,
+    },
 
-  notes: {
-    type: String
-  },
+    goal: {
+        type: String,
+        required: true,
+        validate: {
+            validator: function (value) {
+                const allowedGoals = GOALS_BY_TYPE[this.campaignType];
+                return Array.isArray(allowedGoals) && allowedGoals.includes(value);
+            },
+            message: (props) =>
+                `"${props.value}" is not a valid goal for the selected campaign type.`,
+        },
+    },
 
-  budget: {
-    type: Number,
-    required: true,
-    min: 0
-  },
+    notes: {
+        type: String
+    },
 
-  preferredChannels: {
-    type: String
-  },
+    budget: {
+        type: Number,
+        required: true,
+        min: 0
+    },
 
-  status: {
-    type: String,
-    enum: ['submitted', 'under review', 'accepted', 'rejected'],
-    required: true
-  },
+    preferredChannels: [{
+        type: String
+    }],
 
-  dueDate: {
-    type: Date,
-    required: true
-  }
-}, {
-    //To record the Time of creation
-  timestamps: true
-});
+    status: {
+        type: String,
+        enum: ["submitted", "under_review", "accepted", "rejected"],
+        required: true,
+        default: "submitted",
+    },
 
-const CampaignRequest = mongoose.model(
-  'CampaignRequest',
-  CampaignRequestSchema
-);
+    rejectedReason: {
+        type: String,
+    },
+    
+}, { timestamps: true });
 
+const CampaignRequest = mongoose.model("CampaignRequest", campaignRequestSchema);
 module.exports = CampaignRequest;
