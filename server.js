@@ -30,6 +30,8 @@ app.use('/auth', authRouter);
 // PROTECTED
 app.use(isSignedIn);
 
+
+//Admin routes 
 app.use('/users', userRoutes);
 app.use('/departments', departmentRoutes);
 
