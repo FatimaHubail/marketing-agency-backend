@@ -1,49 +1,59 @@
 const mongoose = require('mongoose');
-const User = require('./user');
 
 const CampaignRequestSchema = new mongoose.Schema({
-    clinetId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Client',
-        require: true
-    },
-    title: {
-        type: String,
-        require: true
-    },
-    campaignType: {
-        type: String,
-        enum: ['social media', 'sem', 'print', 'event'],
-        require: true,
-    },
-    goal: {
-        type: String,
-        require: true
-    },
-    notes: {
-        type: String,
-    },
-    budget: {
-        type: Number,
-        require: true,
-        min: 0
-    },
-    preferredChannels: {
-        type: String
-    },
-    status: {
-        type: String,
-        enum: ['submitted', 'under review', 'accepted', 'rejected'],
-        required: true,
-    },
-    //timesStamps replaces the createdAt attribute, so the time of creation is recorded automatically 
-     timesStamps: true,
-    //Extra, doesn't exist in the current ERD
-    dueDate: {
-        type: Date,
-        require: true,
-    }
+  clinetId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Client',
+    required: true
+  },
+
+  title: {
+    type: String,
+    required: true
+  },
+
+  campaignType: {
+    type: String,
+    enum: ['social media', 'sem', 'print', 'event'],
+    required: true
+  },
+
+  goal: {
+    type: String,
+    required: true
+  },
+
+  notes: {
+    type: String
+  },
+
+  budget: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+
+  preferredChannels: {
+    type: String
+  },
+
+  status: {
+    type: String,
+    enum: ['submitted', 'under review', 'accepted', 'rejected'],
+    required: true
+  },
+
+  dueDate: {
+    type: Date,
+    required: true
+  }
+}, {
+  timestamps: true
 });
 
-const CampaignRequest = mongoose.model('CampaignRequest', CampaignRequestSchema);
+const CampaignRequest = mongoose.model(
+  'CampaignRequest',
+  CampaignRequestSchema
+);
+
 module.exports = CampaignRequest;
