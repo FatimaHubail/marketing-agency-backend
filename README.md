@@ -70,6 +70,11 @@ Check out the wireframes sketching out layout and flow of the app covering the s
 [Open Client wireframes in Excalidraw](https://excalidraw.com/#json=HtugvHFQrEdtZtdNZ0Pr-,EjUBjAKtMfTTcD_qsOLgjA)
 
 ### Agent Staff WireFrames
+<div align="center">
+
+[Open Agency Staff wireframes in Excalidraw](https://excalidraw.com/#json=V0PU0amix4BDnANgbY0Re,NuTEOwe1H88DcIIhvqFDLg)
+
+
 
 ### Outsource Partners Wireframes
 
