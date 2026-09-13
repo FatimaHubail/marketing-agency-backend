@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 
 require('dotenv').config();
 require('./config/database');
@@ -14,7 +13,9 @@ const isSignedIn = require('./middleware/isSignedIn');
 
 // Routers
 const authRouter = require('./routes/authRouter');
+const departmentRoutes = require('./routes/departmentRoutes');
 
+app.use('/departments', departmentRoutes);
 app.use(cors());
 app.use(express.json());
 app.use(logger('dev'));
@@ -23,6 +24,7 @@ app.use(logger('dev'));
 
 // PUBLIC
 app.use('/auth', authRouter);
+
 
 // PROTECTED
 app.use(isSignedIn);
