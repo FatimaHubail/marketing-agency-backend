@@ -36,9 +36,8 @@ const CampaignRequestSchema = new mongoose.Schema({
         enum: ['submitted', 'under review', 'accepted', 'rejected'],
         required: true,
     },
-    createdAt: {
-        type: Date
-    },
+    //timesStamps replaces the createdAt attribute, so the time of creation is recorded automatically 
+     timesStamps: true,
     //Extra, doesn't exist in the current ERD
     dueDate: {
         type: Date,
