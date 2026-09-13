@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema({
 
   role: {
     type: String,
+    //Updated the role to enum, added and admin role, so their is an account to create the c.m, staff, and out source agency account, and reject or approve the campaign requests
+    enum: ['client', 'campaign manager', 'staff', 'out source agency', 'admin'],
+    default: 'client',
     required: true,
   },
 
