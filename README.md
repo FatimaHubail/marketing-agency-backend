@@ -82,34 +82,49 @@ Check out the wireframes sketching out layout and flow of the app covering the s
 
 ## ERD
 
+
 ## Routing Tables
 
 ## Auth routes
 
 | Method | Route | Access | Success | Errors | Notes |
 |---|---|---|---|---|---|
-| POST | `/api/auth/register` | public (client signup, incl. company fields) | `201 Created` | `400` invalid input · `409` email exists | Creates a `User` + `Client` profile in one call — this is the Register screen's "Create account" submit |
-| POST | `/api/auth/login` | public | `200 OK` | `400` missing fields · `401` bad credentials | Returns an auth token/session used by every protected route below |
-| GET | `/api/auth/me` | authenticated | `200 OK` | `401` no/invalid token | Used on app load to restore the session and populate the topbar user info |
-| POST | `/api/auth/logout` | authenticated | `200 OK` | `401` no/invalid token | Invalidates the current session/token |
+| POST | `/auth/register` | public (client signup, incl. company fields) | `201 Created` | `400` invalid input · `409` email exists | Creates a `User` + `Client` profile in one call — this is the Register screen's "Create account" submit |
+| POST | `/auth/login` | public | `200 OK` | `400` missing fields · `401` bad credentials | Returns an auth token/session used by every protected route below |
+| GET | `/auth/:id` | authenticated | `200 OK` | `401` no/invalid token | Used on app load to restore the session and populate the topbar user info |
+| POST | `/auth/logout` | authenticated | `200 OK` | `401` no/invalid token | Invalidates the current session/token |
 
 ## Client routes
 
 | Method | Route | Access | Success | Errors | Notes |
 |---|---|---|---|---|---|
-| GET | `/api/clients/me` | client | `200 OK` | `401` unauthenticated · `404` no client profile | Populates the Company Profile page |
-| PUT | `/api/clients/me` | client | `200 OK` | `400` validation · `401` unauthenticated | "Save changes" on the Company Profile page |
-| POST | `/api/requests` | client | `201 Created` | `400` validation (e.g. invalid goal for type) · `401` unauthenticated | "Submit" on the New Campaign Request form |
-| GET | `/api/requests` | client (own only) | `200 OK` | `401` unauthenticated | Populates the My Requests table and the dashboard's request stats |
-| GET | `/api/requests/:id` | client (owner) | `200 OK` | `403` not owner · `404` not found | Backs a request detail view (row expansion or a dedicated page) |
-| PUT | `/api/requests/:id` | client (owner, `"submitted"` only) | `200 OK` | `400` validation · `403` not owner or already reviewed · `404` not found · `409` status no longer editable | Editing a request before staff starts reviewing it |
-| DELETE | `/api/requests/:id` | client (owner, `"submitted"` only) | `204 No Content` | `403` not owner or already reviewed · `404` not found | The delete button on the My Requests page, only while still pending |
+| GET | `/clients/:id` | client | `200 OK` | `401` unauthenticated · `404` no client profile | Populates the Company Profile page |
+| PUT | `/clients/:id` | client | `200 OK` | `400` validation · `401` unauthenticated | "Save changes" on the Company Profile page |
+| POST | `/requests` | client | `201 Created` | `400` validation (e.g. invalid goal for type) · `401` unauthenticated | "Submit" on the New Campaign Request form |
+| GET | `/requests` | client (own only) | `200 OK` | `401` unauthenticated | Populates the My Requests table and the dashboard's request stats |
+| GET | `/requests/:id` | client (owner) | `200 OK` | `403` not owner · `404` not found | Backs a request detail view (row expansion or a dedicated page) |
+| PUT | `/requests/:id` | client (owner, `"submitted"` only) | `200 OK` | `400` validation · `403` not owner or already reviewed · `404` not found · `409` status no longer editable | Editing a request before staff starts reviewing it |
+| DELETE | `/requests/:id` | client (owner, `"submitted"` only) | `204 No Content` | `403` not owner or already reviewed · `404` not found | The delete button on the My Requests page, only while still pending |
 
-| GET | `/api/campaigns` | client (own only) | `200 OK` | `401` unauthenticated | Populates the My Campaigns page and its status tabs |
-| GET | `/api/campaigns/:id` | client (owner) | `200 OK` | `403` not owner · `404` not found | Populates the Campaign Detail page (stepper, budget bar, review area) |
-| PUT | `/api/campaigns/:id/review` | client (owner, `"client_review"` status only) | `200 OK` | `400` missing decision · `403` not owner or wrong status · `404` not found | "Approve" / "Request changes" buttons on the Campaign Detail page |
+| GET | `/campaigns` | client (own only) | `200 OK` | `401` unauthenticated | Populates the My Campaigns page and its status tabs |
+| GET | `/campaigns/:id` | client (owner) | `200 OK` | `403` not owner · `404` not found | Populates the Campaign Detail page (stepper, budget bar, review area) |
+| PUT | `/campaigns/:id/review` | client (owner, `"client_review"` status only) | `200 OK` | `400` missing decision · `403` not owner or wrong status · `404` not found | "Approve" / "Request changes" buttons on the Campaign Detail page |
 
 ### Agency staff routes
-![Image description](/images/REST%20API.jpeg)
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/campaign-requests` | Get campaign requests |
+| GET | `/campaign-requests/:id` | Get one request |
+| PUT | `/campaign-requests/:id` | Update request / accept / reject |
+| DELETE | `/campaign-requests/:id` | Delete request |
+| GET | `/tasks` | Get tasks |
+| POST | `/tasks` | Create task |
+| PUT | `/tasks/:id` | Update task |
+| DELETE | `/tasks/:id` | Delete task |
+| GET | `/clients` | Get clients |
+| GET | `/clients/:id` | Get one client |
+| PUT | `/clients/:id` | Update client |
+| DELETE | `/clients/:id` | Delete client |
+
 
 ### Outsource partners routes
