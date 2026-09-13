@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { GOALS_BY_TYPE, CAMPAIGN_TYPES } = require("../constants/campaignTaxonomy");
+const { CAMPAIGN_TYPES, ALL_GOALS } = require("../constants/campaignTaxonomy");
 
 const campaignRequestSchema = new mongoose.Schema({
     clientId: {
@@ -25,17 +25,10 @@ const campaignRequestSchema = new mongoose.Schema({
 
     goal: {
         type: String,
-        required: true,
-        validate: {
-            validator: function (value) {
-                const allowedGoals = GOALS_BY_TYPE[this.campaignType];
-                return Array.isArray(allowedGoals) && allowedGoals.includes(value);
-            },
-            message: (props) =>
-                `"${props.value}" is not a valid goal for the selected campaign type.`,
-        },
+        enum: ALL_GOALS,
+        required: true
     },
-
+    
     notes: {
         type: String
     },
