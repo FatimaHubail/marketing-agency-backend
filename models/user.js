@@ -4,18 +4,34 @@ const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
+    unique: true,
   },
+
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+
   password: {
     type: String,
     required: true,
+  },
+
+  role: {
+    type: String,
+    required: true,
+  },
+
+  departmentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Department',
   },
 });
 
 userSchema.set('toJSON', {
   transform: (document, userObj) => {
     delete userObj.password;
-    // we can add any field we want here that is not on the model
-    // computed fields
   },
 });
 
