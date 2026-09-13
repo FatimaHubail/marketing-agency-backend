@@ -116,7 +116,6 @@ Check out the wireframes sketching out layout and flow of the app covering the s
 | GET | `/requests/:id` | client (owner) | `200 OK` | `403` not owner · `404` not found | Backs a request detail view (row expansion or a dedicated page) |
 | PUT | `/requests/:id` | client (owner, `"submitted"` only) | `200 OK` | `400` validation · `403` not owner or already reviewed · `404` not found · `409` status no longer editable | Editing a request before staff starts reviewing it |
 | DELETE | `/requests/:id` | client (owner, `"submitted"` only) | `204 No Content` | `403` not owner or already reviewed · `404` not found | The delete button on the My Requests page, only while still pending |
-
 | GET | `/campaigns` | client (own only) | `200 OK` | `401` unauthenticated | Populates the My Campaigns page and its status tabs |
 | GET | `/campaigns/:id` | client (owner) | `200 OK` | `403` not owner · `404` not found | Populates the Campaign Detail page (stepper, budget bar, review area) |
 | PUT | `/campaigns/:id/review` | client (owner, `"client_review"` status only) | `200 OK` | `400` missing decision · `403` not owner or wrong status · `404` not found | "Approve" / "Request changes" buttons on the Campaign Detail page |
