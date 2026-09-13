@@ -16,6 +16,8 @@ const isSignedIn = require('./middleware/isSignedIn');
 const authRouter = require('./routes/authRouter');
 const departmentRoutes = require('./routes/departmentRoutes');
 const userRoutes = require('./routes/userRoutes');
+const campaignRequestRoutes = require('./routes/CampaignRequestRoutes');
+
 
 
 app.use(cors());
@@ -30,10 +32,12 @@ app.use('/auth', authRouter);
 // PROTECTED
 app.use(isSignedIn);
 
-
 //Admin routes 
 app.use('/users', userRoutes);
 app.use('/departments', departmentRoutes);
+
+//agency routes
+app.use('/campaign-request', campaignRequestRoutes)
 
 app.get('/protected', (req, res) => {
   try {
