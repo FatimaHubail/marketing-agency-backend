@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -11,6 +13,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    validate: [validator.isEmail, 'Invalid Email Address']
   },
 
   password: {
@@ -38,6 +41,8 @@ userSchema.set('toJSON', {
     delete userObj.password;
   },
 });
+
+clientSchema.plugin(uniqueValidator);
 
 const User = mongoose.model('User', userSchema);
 
