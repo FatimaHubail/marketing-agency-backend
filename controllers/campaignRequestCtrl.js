@@ -29,21 +29,32 @@ const getCampaignRequest = async(req,res)=>{
     }
 }
 
+// Status is intentionally not editable here - it only moves via
+// assignCampaignRequest (-> accepted) and rejectCampaignRequest (-> rejected).
+const EDITABLE_REQUEST_FIELDS = ['title', 'description', 'campaignType', 'goal', 'notes', 'budget', 'preferredChannels'];
+
 const updateCampaignRequest = async(req,res)=>{
     try{
-        const campaignRequest = await CampaignRequest.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            {new: true}
-        );
+        const campaignRequest = await CampaignRequest.findById(req.params.id);
 
         if(!campaignRequest){
             return res.status(404).json({err: 'Campaign request not found'});
         }
 
+        for(const field of EDITABLE_REQUEST_FIELDS){
+            if(req.body[field] !== undefined){
+                campaignRequest[field] = req.body[field];
+            }
+        }
+
+        await campaignRequest.save();
+
         res.status(200).json(campaignRequest);
 
     }catch(err){
+        if(err.name === 'ValidationError'){
+            return res.status(400).json({err: err.message});
+        }
         res.status(500).json({err: err.message});
     }
 }
@@ -121,6 +132,33 @@ const assignCampaignRequest = async(req,res)=>{
     }
 }
 
+const rejectCampaignRequest = async(req,res)=>{
+    try{
+        const campaignRequest = await CampaignRequest.findById(req.params.id);
+
+        if(!campaignRequest){
+            return res.status(404).json({err: 'Campaign request not found'});
+        }
+
+        if(campaignRequest.status === 'accepted' || campaignRequest.status === 'rejected'){
+            return res.status(400).json({err: `Request has already been ${campaignRequest.status}`});
+        }
+
+        campaignRequest.status = 'rejected';
+        campaignRequest.rejectedReason = req.body.rejectedReason;
+
+        await campaignRequest.save();
+
+        res.status(200).json(campaignRequest);
+
+    }catch(err){
+        if(err.name === 'ValidationError'){
+            return res.status(400).json({err: err.message});
+        }
+        res.status(500).json({err: err.message});
+    }
+}
+
 const deleteCampaignRequest = async(req,res)=>{
     try{
         const campaignRequest = await CampaignRequest.findByIdAndDelete(req.params.id);
@@ -143,5 +181,6 @@ module.exports = {
     getCampaignRequest,
     updateCampaignRequest,
     assignCampaignRequest,
+    rejectCampaignRequest,
     deleteCampaignRequest
 }
