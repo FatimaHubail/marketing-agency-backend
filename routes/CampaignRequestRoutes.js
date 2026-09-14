@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const isClient = require('../middleware/isClient');
 
 const campaignRequestCtrl = require('../controllers/campaignRequestCtrl');
 
-router.get('/', campaignRequestCtrl.getCampaignRequest);
-router.get('/:id', campaignRequestCtrl.getOneCampaignRequest);
-router.put('/:id', campaignRequestCtrl.updateCampaignRequest);
-router.delete('/:id', campaignRequestCtrl.deleteCampaignRequest)
+router.get('/', campaignRequestCtrl.allRequests);
+router.post('/', isClient, campaignRequestCtrl.create);
+router.get('/:id', campaignRequestCtrl.show);
+router.put('/:id', campaignRequestCtrl.update);
+router.delete('/:id', campaignRequestCtrl.delete)
 
 module.exports = router;

@@ -35,8 +35,8 @@ app.use('/users', userRoutes);
 app.use('/departments', departmentRoutes);
 app.use('/tasks', taskRoutes);
 
-//agency routes
-app.use('/campaign-request', campaignRequestRoutes)
+// campaign requests routes
+app.use('/requests', campaignRequestRoutes)
 app.use('/tasks', taskRoutes)
 
 app.get('/protected', (req, res) => {
