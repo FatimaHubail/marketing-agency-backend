@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const STAFF_ROLES = ['staff', 'campaignManager', 'admin'];
+const STAFF_ROLES = ['staff', 'admin'];
 
 function isStaff(req, res, next) {
     const authHeader = req.headers.authorization;
