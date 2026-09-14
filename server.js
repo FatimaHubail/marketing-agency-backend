@@ -44,7 +44,7 @@ app.use('/requets', clientCampReqRouter);
 
 // campaign requests routes
 app.use('/campaign-requests', campaignRequestRoutes)
-app.use('/tasks', taskRoutes)
+
 
 app.get('/protected', (req, res) => {
   try {
