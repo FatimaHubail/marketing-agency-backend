@@ -1,44 +1,4 @@
 const CampaignRequest = require('../models/campaignRequest');
-const { CAMPAIGN_TYPES, GOALS_BY_TYPE } = require('../constants/campaignTaxonomy');
-
-const create = async (req, res) => {
-  try {
-    const { title, description, campaignType, goal, notes, budget, preferredChannels } = req.body;
-
-    // validating campaign request fields
-    if (!title || !campaignType || !goal || budget === undefined) {
-      return res.status(400).json({ error: 'title, campaignType, goal, and budget are required' });
-    }
-
-    if (!CAMPAIGN_TYPES.includes(campaignType)) {
-      return res.status(400).json({ error: 'invalid campaignType' });
-    }
-
-    if (!GOALS_BY_TYPE[campaignType].includes(goal)) {
-      return res.status(400).json({ error: `invalid goal for campaignType '${campaignType}'` });
-    }
-
-    if (typeof budget !== 'number' || budget < 0) {
-      return res.status(400).json({ error: 'budget must be a non-negative number' });
-    }
-
-    const newRequest = await CampaignRequest.create({
-      clientId: req.user.clientId,
-      title,
-      description,
-      campaignType,
-      goal,
-      notes,
-      budget,
-      preferredChannels,
-      status: 'submitted',
-    });
-
-    res.status(201).json(newRequest);
-  } catch (error) {
-    res.status(400).json({ err: error.message });
-  }
-};
 
 const allRequests = async(req,res)=> {
     try{
@@ -90,7 +50,6 @@ const deleteCampaignRequest = async(req,res)=>{
   }
 }
 module.exports = {
-  create,
   allRequests,
   show,
   update,
