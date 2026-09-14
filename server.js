@@ -1,5 +1,3 @@
-/* eslint-disable prefer-destructuring */
-
 require('dotenv').config();
 require('./config/database');
 
@@ -17,7 +15,7 @@ const authRouter = require('./routes/authRouter');
 const departmentRoutes = require('./routes/departmentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const campaignRequestRoutes = require('./routes/CampaignRequestRoutes');
-
+const taskRoutes = require('./routes/taskRoutes');
 
 
 app.use(cors());
@@ -35,9 +33,11 @@ app.use(isSignedIn);
 //Admin routes 
 app.use('/users', userRoutes);
 app.use('/departments', departmentRoutes);
+app.use('/tasks', taskRoutes);
 
 // campaign requests routes
 app.use('/requests', campaignRequestRoutes)
+app.use('/tasks', taskRoutes)
 
 app.get('/protected', (req, res) => {
   try {
