@@ -1,14 +1,24 @@
 const express = require('express');
 const router = express.Router();
+
+//middlreware
 const isClient = require('../../middleware/isClient');
 const isOwner = require('../../middleware/isOwner');
-const vlaidateFields = require('../../middleware/validateFields');
+const validateFields = require('../../middleware/validateFields');
+
+// ctrl
 const clientRequestCtrl = require('../../controllers/client/clientCampaignRequestCtrl');
 
-router.get('/', clientRequestCtrl.allRequests );
-router.post('/', isClient, vlaidateFields, clientRequestCtrl.create);
+// routes
+router.get('/', isClient, clientRequestCtrl.allRequests );
+router.post('/', isClient, validateFields, clientRequestCtrl.create);
 router.get('/:id',isClient, isOwner, clientRequestCtrl.show);
-router.put('/:id', isClient, isOwner({status: 'submitted'}), vlaidateFields, clientRequestCtrl.update);
-router.delete('/:id', clientRequestCtrl.delete)
+router.put('/:id',
+    isClient,
+    isOwner({ status: 'submitted' }),
+    validateFields,
+    clientRequestCtrl.update
+);
+router.delete('/:id', isClient, requireOwner({ requireStatus: 'submitted' }), clientRequestCtrl.delete)
 
 module.exports = router;

@@ -57,12 +57,9 @@ const update = async (req, res) => {
 
 const deleteCampaignRequest = async (req, res) => {
     try {
-        const campaignRequest = await CampaignRequest.findByIdAndDelete(req.params.id);
+        await req.campaignRequest.deleteOne();
 
-        if (!campaignRequest) {
-            return res.status(404).json({ err: 'Campaign request not found' });
-        }
-        res.status(200).json({ message: 'Campaign request deleted successfully' });
+        res.status(204).send();
     } catch (err) {
         res.status(500).json({ err: err.message });
     }
