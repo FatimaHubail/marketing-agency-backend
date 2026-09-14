@@ -42,7 +42,7 @@ const create = async (req, res) => {
 
 const allRequests = async (req, res) => {
     try {
-        const campaignRequests = await CampaignRequest.find();
+        const campaignRequests = await CampaignRequest.find({clientId: req.user.clientId}).sort({createdAt: -1});
 
         res.status(200).json(campaignRequests);
     } catch (err) {
