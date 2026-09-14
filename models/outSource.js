@@ -17,8 +17,6 @@ const OutsourceSchema = new mongoose.Schema({
         required: true
     },
     outSourceType: {
-=======
->>>>>>> origin/main
         type: String,
         required: true
     },
