@@ -23,14 +23,14 @@ const outsourceTaskSchema = new mongoose.Schema({
   },
 
   outsourceId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'OutSource',
+    type: ObjectId,
+    ref: 'outSource',
     required: true
   },
 
   campaignManagerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'CampaignManager',
+    ref: 'User',
     required: true
   },
 
@@ -47,9 +47,21 @@ const outsourceTaskSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ['pending', 'accepted', 'rejected', 'in_progress', 'completed'],
+    //Added 'delivered' status in case the outsourced already delivered the task
+    enum: ['pending', 'accepted', 'rejected', 'in_progress', 'completed', 'delivered'],
     default: 'pending',
     required: true
+  },
+
+  paymentAmount: {
+    type: Number,
+    required: true
+  },
+
+  //In case the outsource provide multiple type of service, the type needed in the task must be specified
+  serviceType: {
+    type: String,
+    required: true,
   },
 
   rejectionReason: {
