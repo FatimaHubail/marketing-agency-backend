@@ -40,7 +40,7 @@ app.use('/clients', agencyClientRoutes);
 
 
 // client campaign requests routes
-app.use('/requets', clientCampReqRouter);
+app.use('/requests', clientCampReqRouter);
 
 // campaign requests routes
 app.use('/campaign-requests', campaignRequestRoutes)
