@@ -1,26 +1,9 @@
-const CampaignRequest = require('../../models/campaignRequest');
-const { CAMPAIGN_TYPES, GOALS_BY_TYPE } = require('../../constants/campaignTaxonomy');
+const CampaignRequest = require('../../models/CampaignRequest.js');
+
 
 const create = async (req, res) => {
     try {
         const { title, description, campaignType, goal, notes, budget, preferredChannels } = req.body;
-
-        // validating campaign request fields
-        if (!title || !campaignType || !goal || budget === undefined) {
-            return res.status(400).json({ error: 'title, campaignType, goal, and budget are required' });
-        }
-
-        if (!CAMPAIGN_TYPES.includes(campaignType)) {
-            return res.status(400).json({ error: 'invalid campaignType' });
-        }
-
-        if (!GOALS_BY_TYPE[campaignType].includes(goal)) {
-            return res.status(400).json({ error: `invalid goal for campaignType '${campaignType}'` });
-        }
-
-        if (typeof budget !== 'number' || budget < 0) {
-            return res.status(400).json({ error: 'budget must be a non-negative number' });
-        }
 
         const newRequest = await CampaignRequest.create({
             clientId: req.user.clientId,
@@ -35,14 +18,14 @@ const create = async (req, res) => {
         });
 
         res.status(201).json(newRequest);
-    } catch (error) {
-        res.status(400).json({ err: error.message });
+    } catch (err) {
+        res.status(400).json({ err: err.message });
     }
 };
 
 const allRequests = async (req, res) => {
     try {
-        const campaignRequests = await CampaignRequest.find();
+        const campaignRequests = await CampaignRequest.find({clientId: req.user.clientId}).sort({createdAt: -1});
 
         res.status(200).json(campaignRequests);
     } catch (err) {
@@ -50,41 +33,33 @@ const allRequests = async (req, res) => {
     }
 }
 
-const show = async (req, res) => {
-    try {
-        const campaignRequestOne = await CampaignRequest.findById(req.params.id);
+const show = (req, res) => {
+    // req.campaignRequest was loaded + ownership-checked by middleware
+    res.status(200).json(req.campaignRequest);
+};
 
-        res.status(200).json(campaignRequestOne);
-    } catch (err) {
-        res.status(500).json({ err: err.message });
-
-    }
-}
 
 const update = async (req, res) => {
     try {
-        const campaignRequest = await CampaignRequest.findByIdAndUpdate(req.params.id, req.body,
-            { new: true }
-        );
-        if (!campaignRequest) {
-            return res.status(400).json({ err: 'Campaign request not found' });
-        }
+        const { title, description, campaignType, goal, notes, budget, preferredChannels } = req.body;
 
-        res.status(200).json(campaignRequest);
-    }
-    catch (err) {
-        res.status(500).json({ err: err.message })
+        Object.assign(req.campaignRequest, {
+            title, description, campaignType, goal, notes, budget, preferredChannels,
+        });
+
+        await req.campaignRequest.save();
+
+        res.status(200).json(req.campaignRequest);
+    } catch (err) {
+        res.status(500).json({ err: err.message });
     }
 }
 
 const deleteCampaignRequest = async (req, res) => {
     try {
-        const campaignRequest = await CampaignRequest.findByIdAndDelete(req.params.id);
+        await req.campaignRequest.deleteOne();
 
-        if (!campaignRequest) {
-            return res.status(404).json({ err: 'Campaign request not found' });
-        }
-        res.status(200).json({ message: 'Campaign request deleted successfully' });
+        res.status(204).send();
     } catch (err) {
         res.status(500).json({ err: err.message });
     }
