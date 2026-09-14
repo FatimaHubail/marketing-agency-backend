@@ -1,6 +1,7 @@
 const OutsourceTask = require('../models/outsourceTask');
 
-const create = async (req, res) => {
+//For the campaign manager
+const createOutsourceTask = async (req, res) => {
     try {
         const outsourceTask = await OutsourceTask.create(req.body);
 
@@ -10,9 +11,10 @@ const create = async (req, res) => {
     }
 };
 
+//for the outsource
 const index = async (req, res) => {
     try {
-        const outsourceTasks = await OutsourceTask.find();
+        const outsourceTasks = await OutsourceTask.find({ outsourceId: req.user._id });
 
         res.status(200).json(outsourceTasks);
     } catch (error) {
@@ -20,11 +22,25 @@ const index = async (req, res) => {
     }
 };
 
+//For the outsource and the campgain manager
 const show = async (req, res) => {
     try {
         const outsourceTask = await OutsourceTask.findById(req.params.id);
 
         res.status(200).json(outsourceTask);
+    } catch (error) {
+        res.status(500).json({ err: error.message });
+    }
+};
+
+
+//To show only the outsrouce task related to the campaign
+//This is for the Campaign Manager
+const outsourceTasksByCampaign = async (req, res) => {
+    try {
+        const outsourceTasks = await OutsourceTask.find({ campaignId: req.params.campaignId });
+
+        res.status(200).json(outsourceTasks);
     } catch (error) {
         res.status(500).json({ err: error.message });
     }
@@ -43,6 +59,7 @@ const update = async (req, res) => {
     }
 };
 
+//for the campaign manager
 const deleteOutsourceTask = async (req, res) => {
     try {
         const outsourceTask = await OutsourceTask.findByIdAndDelete(req.params.id);
@@ -58,9 +75,10 @@ const deleteOutsourceTask = async (req, res) => {
 };
 
 module.exports = {
-    create,
+    createOutsourceTask,
     index,
     show,
+    outsourceTasksByCampaign,
     update,
     delete: deleteOutsourceTask
 };
