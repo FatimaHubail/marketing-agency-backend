@@ -3,9 +3,9 @@ const router = express.Router();
 
 const campaignRequestCtrl = require('../controllers/campaignRequestCtrl');
 
-router.get('/', campaignRequestCtrl.getCampaignRequest);
-router.get('/:id', campaignRequestCtrl.getOneCampaignRequest);
-router.put('/:id', campaignRequestCtrl.updateCampaignRequest);
-router.delete('/:id', campaignRequestCtrl.deleteCampaignRequest)
+router.get('/', campaignRequestCtrl.allRequests);
+router.get('/:id', campaignRequestCtrl.show);
+router.put('/:id', campaignRequestCtrl.update);
+router.delete('/:id', campaignRequestCtrl.delete)
 
 module.exports = router;

@@ -1,16 +1,46 @@
 const CampaignRequest = require('../models/campaignRequest');
+const { CAMPAIGN_TYPES, ALL_GOALS } = require('../constants/campaignTaxonomy');
 
-const createCampReq = async (req, res) => {
+const create = async (req, res) => {
   try {
-    const campaignRequest = await CampaignRequest.create(req.body);
+    const { title, description, campaignType, goal, notes, budget, preferredChannels } = req.body;
 
-    res.status(201).json(campaignRequest);
+    // validating campaign request fields
+    if (!title || !campaignType || !goal || budget === undefined) {
+      return res.status(400).json({ error: 'title, campaignType, goal, and budget are required' });
+    }
+
+    if (!CAMPAIGN_TYPES.includes(campaignType)) {
+      return res.status(400).json({ error: 'invalid campaignType' });
+    }
+
+    if (!ALL_GOALS.includes(goal)) {
+      return res.status(400).json({ error: 'invalid goal' });
+    }
+
+    if (typeof budget !== 'number' || budget < 0) {
+      return res.status(400).json({ error: 'budget must be a non-negative number' });
+    }
+
+    const newRequest = await CampaignRequest.create({
+      clientId: req.user.clientId,
+      title,
+      description,
+      campaignType,
+      goal,
+      notes,
+      budget,
+      preferredChannels,
+      status: 'submitted',
+    });
+
+    res.status(201).json(newRequest);
   } catch (error) {
-    res.status(500).json({ err: error.message });
+    res.status(400).json({ err: error.message });
   }
 };
 
-const getCampaignRequest = async(req,res)=> {
+const allRequests = async(req,res)=> {
     try{
         const campaignRequests = await CampaignRequest.find();
 
@@ -20,7 +50,7 @@ const getCampaignRequest = async(req,res)=> {
     }
 }
 
-const getOneCampaignRequest = async(req,res)=>{
+const show = async(req,res)=>{
     try{
         const campaignRequestOne = await CampaignRequest.findById(req.params.id);
 
@@ -31,7 +61,7 @@ const getOneCampaignRequest = async(req,res)=>{
     }
 }
 
-const updateCampaignRequest = async(req,res)=>{
+const update = async(req,res)=>{
   try{
     const campaignRequest = await CampaignRequest.findByIdAndUpdate(req.params.id, req.body,
     {new: true}
@@ -60,5 +90,9 @@ const deleteCampaignRequest = async(req,res)=>{
   }
 }
 module.exports = {
-  createCampReq, getCampaignRequest, getOneCampaignRequest, updateCampaignRequest, deleteCampaignRequest,
+  create,
+  allRequests,
+  show,
+  update,
+  delete: deleteCampaignRequest,
 };
