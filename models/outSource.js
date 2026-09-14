@@ -12,7 +12,7 @@ const OutSourceSchema = new mongoose.Schema({
     },
     phone:{
         type: String,
-        require: true
+        required: true
     },
     outSourceType: {
         type: String,
