@@ -1,5 +1,5 @@
-const CampaignRequest = require('../models/campaignRequest');
-const { CAMPAIGN_TYPES, GOALS_BY_TYPE } = require('../constants/campaignTaxonomy');
+const CampaignRequest = require('../../models/campaignRequest');
+const { CAMPAIGN_TYPES, GOALS_BY_TYPE } = require('../../constants/campaignTaxonomy');
 
 const create = async (req, res) => {
     try {
