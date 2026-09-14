@@ -13,7 +13,7 @@ function isOwner({ status } = {}) {
                 return res.status(403).json({ err: 'Not authorized to access this request' });
             }
 
-            if (status && campaignRequest.status !== requireStatus) {
+            if (status && campaignRequest.status !== status) {
                 return res.status(409).json({ err: `Request can no longer be edited once it is under review` });
             }
 

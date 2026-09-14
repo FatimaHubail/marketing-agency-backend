@@ -12,13 +12,13 @@ const clientRequestCtrl = require('../../controllers/client/clientCampaignReques
 // routes
 router.get('/', isClient, clientRequestCtrl.allRequests );
 router.post('/', isClient, validateFields, clientRequestCtrl.create);
-router.get('/:id',isClient, isOwner, clientRequestCtrl.show);
+router.get('/:id',isClient, isOwner(), clientRequestCtrl.show);
 router.put('/:id',
     isClient,
     isOwner({ status: 'submitted' }),
     validateFields,
     clientRequestCtrl.update
 );
-router.delete('/:id', isClient, requireOwner({ requireStatus: 'submitted' }), clientRequestCtrl.delete)
+router.delete('/:id', isClient, isOwner({ status: 'submitted' }), clientRequestCtrl.delete)
 
 module.exports = router;

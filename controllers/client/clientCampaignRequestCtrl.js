@@ -1,4 +1,4 @@
-const CampaignRequest = require('../models/campaignRequest');
+const CampaignRequest = require('../../models/CampaignRequest.js');
 
 
 const create = async (req, res) => {
