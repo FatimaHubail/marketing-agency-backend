@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const OutSource = require('../models/outSource');
+const OutSource = require('../models/outsource');
 const User = require('../models/user');
 
 const SALT_ROUNDS = 10;
