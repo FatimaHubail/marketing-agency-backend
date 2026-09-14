@@ -6,7 +6,7 @@ const clientRequestCtrl = require('../../controllers/client/clientCampaignReques
 
 router.get('/', clientRequestCtrl.allRequests );
 router.post('/', isClient, clientRequestCtrl.create);
-router.get('/:id', campaignRequestCtrl.show);
+router.get('/:id', clientRequestCtrl.show);
 router.put('/:id', campaignRequestCtrl.update);
 router.delete('/:id', campaignRequestCtrl.delete)
 

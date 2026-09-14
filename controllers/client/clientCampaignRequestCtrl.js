@@ -52,8 +52,20 @@ const allRequests = async (req, res) => {
 
 const show = async (req, res) => {
     try {
-        const campaignRequestOne = await CampaignRequest.findById(req.params.id);
+        const campaignRequest = await CampaignRequest.findById(req.params.id);
 
+        if (!campaignRequest) {
+            return res.status(404).json({ err: 'Request not found' });
+        }
+
+        if (campaignRequest.clientId.toString() !== req.user.clientId) {
+            return res.status(403).json({ err: 'Not authorized to view this request' });
+        }
+
+        if (campaignRequest.status !== 'submitted') {
+            return res.status(400).json({ err: 'Request can no longer be edited once it is under review' });
+        }
+        
         res.status(200).json(campaignRequestOne);
     } catch (err) {
         res.status(500).json({ err: err.message });
