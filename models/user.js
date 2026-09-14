@@ -35,7 +35,6 @@ userSchema.set('toJSON', {
   },
 });
 
-console.log(uniqueValidator);
 userSchema.plugin(uniqueValidator);
 
 const User = mongoose.model('User', userSchema);
