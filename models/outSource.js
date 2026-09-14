@@ -2,17 +2,19 @@ const mongoose = require('mongoose');
 const User = require('./user');
 
 const OutSourceSchema = new mongoose.Schema({
-    OutSourceId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+    userId: {
+        type: ObjectId,
+        ref: 'User',
+        required: true,
+        unique: true
     },
     name: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    phone:{
         type: String,
-        require: true
+        required: true
+    },
+    phone: {
+        type: String,
+        required: true
     },
     outSourceType: {
         type: String,
@@ -24,9 +26,18 @@ const OutSourceSchema = new mongoose.Schema({
         enum: ['unavailable', 'available'],
         default: 'unavailable'
     },
-    email: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+    contactPerson: {
+        type: String,
+        required: true
+    },
+    serviceTypes: {
+        type: [String], //Assuming that outsourceing company can provide multiple type of services
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ['available', 'unavailable'],
+        default: 'available'
     }
 });
 

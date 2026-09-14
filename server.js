@@ -17,6 +17,7 @@ const userRoutes = require('./routes/userRoutes');
 const campaignRequestRoutes = require('./routes/CampaignRequestRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const clientCampReqRouter = require('./routes/client/clientCampaignRequestRouter');
+const agencyClientRoutes = require('./routes/agencyClientRoutes');
 
 
 app.use(cors());
@@ -35,6 +36,7 @@ app.use(isSignedIn);
 app.use('/users', userRoutes);
 app.use('/departments', departmentRoutes);
 app.use('/tasks', taskRoutes);
+app.use('/clients', agencyClientRoutes);
 
 
 // client campaign requests routes
@@ -42,7 +44,7 @@ app.use('/requests', clientCampReqRouter);
 
 // campaign requests routes
 app.use('/campaign-requests', campaignRequestRoutes)
-app.use('/tasks', taskRoutes)
+
 
 app.get('/protected', (req, res) => {
   try {

@@ -1,18 +1,18 @@
-const mongoose = require ('mongoose');
+const mongoose = require('mongoose');
 
 const updateSchema = new mongoose.Schema({
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    }, 
+    },
 
     content: {
         type: String,
         required: true,
         trim: true
     }
-},{
+}, {
     timestamps: true
 })
 
@@ -42,20 +42,20 @@ const taskSchema = new mongoose.Schema({
 
     description: {
         type: String
-    }, 
+    },
 
-    status:{
+    status: {
         type: String,
-        enum: ['pending','in progress', 'completed'],
+        enum: ['pending', 'in progress', 'completed'],
         default: 'pending',
         required: true
-    }, 
+    },
 
     dueDate: {
         type: Date,
         required: true
     }
-    
+
 }, {
     timestamps: true
 });
