@@ -1,5 +1,5 @@
 const CampaignRequest = require('../models/campaignRequest');
-const { CAMPAIGN_TYPES, ALL_GOALS } = require('../constants/campaignTaxonomy');
+const { CAMPAIGN_TYPES, GOALS_BY_TYPE } = require('../constants/campaignTaxonomy');
 
 const create = async (req, res) => {
   try {
@@ -14,8 +14,8 @@ const create = async (req, res) => {
       return res.status(400).json({ error: 'invalid campaignType' });
     }
 
-    if (!ALL_GOALS.includes(goal)) {
-      return res.status(400).json({ error: 'invalid goal' });
+    if (!GOALS_BY_TYPE[campaignType].includes(goal)) {
+      return res.status(400).json({ error: `invalid goal for campaignType '${campaignType}'` });
     }
 
     if (typeof budget !== 'number' || budget < 0) {
