@@ -23,8 +23,8 @@ const outsourceTaskSchema = new mongoose.Schema({
   },
 
   outsourceId: {
-    type: ObjectId,
-    ref: 'outSource',
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'outsource',
     required: true
   },
 
@@ -67,6 +67,13 @@ const outsourceTaskSchema = new mongoose.Schema({
   rejectionReason: {
     type: String,
     trim: true
+  },
+  dueDate: {
+    type: Date,
+    required: true
+  },
+  completedAt: {
+    type: Date
   },
 
   deliverables: [{

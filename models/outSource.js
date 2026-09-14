@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('./user');
 
-const OutSourceSchema = new mongoose.Schema({
+const OutsourceSchema = new mongoose.Schema({
     userId: {
         type: ObjectId,
         ref: 'User',
@@ -15,16 +15,6 @@ const OutSourceSchema = new mongoose.Schema({
     phone: {
         type: String,
         required: true
-    },
-    outSourceType: {
-        type: String,
-        required: true
-    },
-    outSourceStatus: {
-        type: String,
-        requried: true,
-        enum: ['unavailable', 'available'],
-        default: 'unavailable'
     },
     contactPerson: {
         type: String,
@@ -41,5 +31,5 @@ const OutSourceSchema = new mongoose.Schema({
     }
 });
 
-const OutSource = mongoose.model('OutSource', OutSourceSchema);
+const OutSource = mongoose.model('OutSource', OutsourceSchema);
 module.exports = OutSource;
