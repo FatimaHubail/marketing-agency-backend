@@ -17,6 +17,7 @@ const userRoutes = require('./routes/userRoutes');
 const campaignRequestRoutes = require('./routes/CampaignRequestRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const clientCampReqRouter = require('./routes/client/clientCampaignRequestRouter');
+const clientCampaignRouter = require('./routes/client/clientCampaignRouter');
 const agencyClientRoutes = require('./routes/agencyClientRoutes');
 
 
@@ -44,6 +45,9 @@ app.use('/requests', clientCampReqRouter);
 
 // campaign requests routes
 app.use('/campaign-requests', campaignRequestRoutes)
+
+// client campaigns routes
+app.use('/campaigns', clientCampaignRouter);
 
 
 app.get('/protected', (req, res) => {
