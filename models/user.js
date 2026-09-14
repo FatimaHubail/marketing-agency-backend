@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const uniqueValidator = require('mongoose-unique-validator');
+const uniqueValidator = require('mongoose-unique-validator').default;
 const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
@@ -35,7 +35,8 @@ userSchema.set('toJSON', {
   },
 });
 
-clientSchema.plugin(uniqueValidator);
+console.log(uniqueValidator);
+userSchema.plugin(uniqueValidator);
 
 const User = mongoose.model('User', userSchema);
 
