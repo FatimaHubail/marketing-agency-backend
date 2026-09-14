@@ -45,7 +45,7 @@ const campaignRequestSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ["submitted", "under_review", "accepted", "rejected"],
+        enum: ["submitted", "accepted", "rejected"],
         required: true,
         default: "submitted",
     },

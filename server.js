@@ -14,6 +14,7 @@ const isSignedIn = require('./middleware/isSignedIn');
 const authRouter = require('./routes/authRouter');
 const userRoutes = require('./routes/userRoutes');
 const campaignRequestRoutes = require('./routes/CampaignRequestRoutes');
+const campaignRoutes = require('./routes/campaignRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const clientCampReqRouter = require('./routes/client/clientCampaignRequestRouter');
 const agencyClientRoutes = require('./routes/agencyClientRoutes');
@@ -42,6 +43,9 @@ app.use('/requests', clientCampReqRouter);
 
 // campaign requests routes
 app.use('/campaign-requests', campaignRequestRoutes)
+
+// campaigns routes (client: own only, staff/admin: all)
+app.use('/campaigns', campaignRoutes);
 
 
 app.get('/protected', (req, res) => {
