@@ -17,6 +17,7 @@ const campaignRequestRoutes = require('./routes/CampaignRequestRoutes');
 const campaignRoutes = require('./routes/campaignRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const clientCampReqRouter = require('./routes/client/clientCampaignRequestRouter');
+const clientCampaignRouter = require('./routes/client/clientCampaignRouter');
 const agencyClientRoutes = require('./routes/agencyClientRoutes');
 
 
