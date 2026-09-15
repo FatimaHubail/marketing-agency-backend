@@ -1,6 +1,6 @@
 const User = require("../models/user");
 const Staff = require("../models/staff");
-const OutSource = require("../models/outSource");
+const Outsource = require("../models/outsource");
 const bcrypt = require("bcrypt");
 
 const createUser = async (req, res) => {

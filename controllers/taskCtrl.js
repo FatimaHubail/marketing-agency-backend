@@ -28,6 +28,8 @@ const getTasks = async(req,res)=>{
 
 const createTask = async(req,res)=>{
     try{
+        req.body.assignedBy = req.user._id;
+
         const { campaignId, assignedTo } = req.body;
 
         const campaign = await Campaign.findById(campaignId);
