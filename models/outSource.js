@@ -9,6 +9,14 @@ const OutsourceSchema = new mongoose.Schema({
         unique: true
     },
     name: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    phone:{
+        type: String,
+        required: true
+    },
+    outSourceType: {
         type: String,
         required: true
     },
