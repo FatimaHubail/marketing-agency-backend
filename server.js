@@ -3,14 +3,14 @@ require('./config/database');
 
 const express = require('express');
 
+
+const app = express();
+
 const isProduction = process.env.NODE_ENV === 'production';
 
 if (isProduction) {
   app.set('trust proxy', 1);
 }
-
-const app = express();
-
 // Middleware
 const cors = require('cors');
 const logger = require('morgan');
