@@ -3,6 +3,12 @@ require('./config/database');
 
 const express = require('express');
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction) {
+  app.set('trust proxy', 1);
+}
+
 const app = express();
 
 // Middleware
@@ -61,6 +67,6 @@ app.get('/protected', (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log('The express app is ready!');
+app.listen(port, '0.0.0.0', () => {
+  console.log(`The express app is ready on port ${port}!`);
 });
