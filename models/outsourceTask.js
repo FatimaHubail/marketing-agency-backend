@@ -89,3 +89,4 @@ const outsourceTaskSchema = new mongoose.Schema({
 const OutsourceTask = mongoose.model('OutsourceTask', outsourceTaskSchema);
 
 module.exports = OutsourceTask;
+

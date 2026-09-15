@@ -32,6 +32,7 @@ app.use(logger('dev'));
 // PUBLIC
 app.use('/auth', authRouter);
 
+
 // PROTECTED
 app.use(isSignedIn);
 
