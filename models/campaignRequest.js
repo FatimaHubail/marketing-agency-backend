@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { CAMPAIGN_TYPES, ALL_GOALS } = require("../constants/campaignTaxonomy");
+const { CAMPAIGN_TYPES, ALL_GOALS, PREFERRED_CHANNELS } = require("../constants/campaignTaxonomy");
 
 const campaignRequestSchema = new mongoose.Schema({
     clientId: {
@@ -40,7 +40,8 @@ const campaignRequestSchema = new mongoose.Schema({
     },
 
     preferredChannels: [{
-        type: String
+        type: String,
+        enum: PREFERRED_CHANNELS,
     }],
 
     status: {
