@@ -1,5 +1,6 @@
 const { CAMPAIGN_TYPES } = require('../constants/campaignTaxonomy');
 
+
 function validateOutsourceTask(req, res, next) {
     const { title, serviceType, paymentAmount, dueDate, outsourceId } = req.body;
 
