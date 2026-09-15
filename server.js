@@ -9,6 +9,7 @@ const app = express();
 const cors = require('cors');
 const logger = require('morgan');
 const isSignedIn = require('./middleware/isSignedIn');
+const isAdmin = require('./middleware/isAdmin');
 
 // Routers
 const authRouter = require('./routes/authRouter');
@@ -19,7 +20,7 @@ const taskRoutes = require('./routes/taskRoutes');
 const clientCampReqRouter = require('./routes/client/clientCampaignRequestRouter');
 const clientCampaignRouter = require('./routes/client/clientCampaignRouter');
 const agencyClientRoutes = require('./routes/agencyClientRoutes');
-
+const adminRoutes = require('./routes/adminRoutes');
 
 app.use(cors());
 app.use(express.json());
@@ -37,6 +38,7 @@ app.use(isSignedIn);
 app.use('/users', userRoutes);
 app.use('/tasks', taskRoutes);
 app.use('/clients', agencyClientRoutes);
+app.use('/admin', isAdmin, adminRoutes);
 
 
 // client campaign requests routes
