@@ -2,12 +2,15 @@ const express = require('express');
 const router = express.Router();
 
 const outsourceCtrl = require('../../controllers/outsourceCtrl');
+const isAdmin = require('../../middleware/isAdmin');
 
 
-router.post('/', outsourceCtrl.create);
+//For Only Admin
+router.post('/', isAdmin, outsourceCtrl.create);
+router.delete('/:id', isAdmin, outsourceCtrl.delete);
+
 router.get('/', outsourceCtrl.index);
 router.get('/:id', outsourceCtrl.show);
 router.put('/:id', outsourceCtrl.update);
-router.delete('/:id', outsourceCtrl.delete);
 
 module.exports = router;

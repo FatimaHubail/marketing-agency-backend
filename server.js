@@ -21,6 +21,7 @@ const clientCampReqRouter = require('./routes/client/clientCampaignRequestRouter
 const clientCampaignRouter = require('./routes/client/clientCampaignRouter');
 const agencyClientRoutes = require('./routes/agencyClientRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const outsourceRoutes = require('./routes/outsource/outsourceRoute');
 
 app.use(cors());
 app.use(express.json());
@@ -39,7 +40,7 @@ app.use('/users', userRoutes);
 app.use('/tasks', taskRoutes);
 app.use('/clients', agencyClientRoutes);
 app.use('/admin', isAdmin, adminRoutes);
-
+app.use('/outsource', outsourceRoutes);
 
 // client campaign requests routes
 app.use('/requests', clientCampReqRouter);

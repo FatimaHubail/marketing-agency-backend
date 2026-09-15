@@ -1,27 +1,20 @@
-const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const OutSource = require('../models/outsource');
+const Outsource = require('../models/outsource');
 const User = require('../models/user');
 
 const SALT_ROUNDS = 10;
 
-//Create an outsource account
-//For the Admin
+// Create an outsource account
+// For Admin
 const createOutSource = async (req, res) => {
     try {
         if (!req.user || !req.user._id) {
             return res.status(401).json({ err: 'Unauthorized' });
         }
 
-        // Verify that the logged-in user is an admin (populated by isAdmin middleware, with fallback)
-        const currentUser = req.user.role ? req.user : await User.findById(req.user._id);
-        if (!currentUser || currentUser.role !== 'admin') {
-            return res.status(403).json({ err: 'Access denied. Only admin can create an outsource account' });
-        }
+        const { username, email, password, name, phone, contactPerson, serviceTypes, status } = req.body;
 
-        const { username, email, password, phone, outSourceType, outSourceStatus } = req.body;
-
-        let userId = req.body.OutSourceId;
+        let userId = req.body.userId;
 
         // If username, email, and password are provided, create the User account
         if (username && email && password) {
@@ -45,18 +38,22 @@ const createOutSource = async (req, res) => {
         }
 
         if (!userId) {
-            return res.status(400).json({ err: 'Outsource account requires credentials (username, email, password) or a valid OutSourceId' });
+            return res.status(400).json({ err: 'Outsource account requires credentials (username, email, password) or a valid userId' });
         }
 
-        let outSource;
+        if (!name || !phone || !contactPerson || !serviceTypes) {
+            return res.status(400).json({ err: 'name, phone, contactPerson, and serviceTypes are required' });
+        }
+
+        let outsource;
         try {
-            outSource = await OutSource.create({
-                OutSourceId: userId,
-                name: mongoose.Types.ObjectId.isValid(req.body.name) ? req.body.name : userId,
-                email: mongoose.Types.ObjectId.isValid(req.body.email) ? req.body.email : userId,
-                phone: phone || req.body.phone,
-                outSourceType: outSourceType || req.body.outSourceType,
-                outSourceStatus: outSourceStatus || 'available'
+            outsource = await Outsource.create({
+                userId,
+                name,
+                phone,
+                contactPerson,
+                serviceTypes: Array.isArray(serviceTypes) ? serviceTypes : [serviceTypes],
+                status: status || 'available'
             });
         } catch (outsourceErr) {
             // Rollback user creation if outsource profile creation fails
@@ -66,10 +63,8 @@ const createOutSource = async (req, res) => {
             throw outsourceErr;
         }
 
-        const populatedOutsource = await OutSource.findById(outSource._id)
-            .populate('OutSourceId', 'username email role')
-            .populate('name', 'username')
-            .populate('email', 'email');
+        const populatedOutsource = await Outsource.findById(outsource._id)
+            .populate('userId', 'username email role');
 
         res.status(201).json(populatedOutsource);
     } catch (error) {
@@ -77,8 +72,8 @@ const createOutSource = async (req, res) => {
     }
 };
 
-//Display all the outsource in the system
-//for staff
+// Display all outsource agencies in the system
+// For staff and admin
 const index = async (req, res) => {
     try {
         if (!req.user || !req.user._id) {
@@ -86,106 +81,110 @@ const index = async (req, res) => {
         }
 
         // Verify that the logged-in user is staff or admin
-        const currentUser = await User.findById(req.user._id);
+        const currentUser = req.user.role ? req.user : await User.findById(req.user._id);
         if (!currentUser || (currentUser.role !== 'staff' && currentUser.role !== 'admin')) {
             return res.status(403).json({ err: 'Access denied. Only staff and admins can view outsource agencies' });
         }
 
-        const outSources = await OutSource.find()
-            .populate('OutSourceId', 'username email role')
-            .populate('name', 'username')
-            .populate('email', 'email');
+        const filter = {};
+        if (req.query.serviceType) {
+            filter.serviceTypes = req.query.serviceType;
+        }
+        if (req.query.status) {
+            filter.status = req.query.status;
+        }
 
-        res.status(200).json(outSources);
+        const outsources = await Outsource.find(filter)
+            .populate('userId', 'username email role');
+
+        res.status(200).json(outsources);
     } catch (error) {
         res.status(500).json({ err: error.message });
     }
 };
 
-
-//Display the details of the outsource
-//For staff, outsource and the admin
+// Display details of a specific outsource agency
+// For staff, admin, and outsource itself
 const show = async (req, res) => {
     try {
         if (!req.user || !req.user._id) {
             return res.status(401).json({ err: 'Unauthorized' });
         }
 
-        const currentUser = await User.findById(req.user._id);
+        const currentUser = req.user.role ? req.user : await User.findById(req.user._id);
         if (!currentUser) {
             return res.status(401).json({ err: 'Unauthorized' });
         }
 
-        const outSource = await OutSource.findById(req.params.id)
-            .populate('OutSourceId', 'username email role')
-            .populate('name', 'username')
-            .populate('email', 'email');
+        const outsource = await Outsource.findById(req.params.id)
+            .populate('userId', 'username email role');
 
-        if (!outSource) {
+        if (!outsource) {
             return res.status(404).json({ err: 'Outsource not found' });
         }
 
         const isStaffOrAdmin = currentUser.role === 'staff' || currentUser.role === 'admin';
-        const isOwnAccount = currentUser.role === 'outsource' && outSource.OutSourceId && outSource.OutSourceId._id.toString() === currentUser._id.toString();
+        const isOwnAccount = currentUser.role === 'outsource' && outsource.userId && outsource.userId._id.toString() === currentUser._id.toString();
 
         if (!isStaffOrAdmin && !isOwnAccount) {
-            return res.status(403).json({ err: 'Access denied. Only staff and admins can view outsource details' });
+            return res.status(403).json({ err: 'Access denied. Only staff, admins, or the account owner can view outsource details' });
         }
 
-        res.status(200).json(outSource);
+        res.status(200).json(outsource);
     } catch (error) {
         res.status(500).json({ err: error.message });
     }
 };
 
-//Update the outsource account
-//For the admin and the outsource
+// Update the outsource account
+// For admin and the outsource agency owner
 const update = async (req, res) => {
     try {
         if (!req.user || !req.user._id) {
             return res.status(401).json({ err: 'Unauthorized' });
         }
 
-        const currentUser = await User.findById(req.user._id);
+        const currentUser = req.user.role ? req.user : await User.findById(req.user._id);
         if (!currentUser) {
             return res.status(401).json({ err: 'Unauthorized' });
         }
 
-        const outSource = await OutSource.findById(req.params.id);
-        if (!outSource) {
+        const outsource = await Outsource.findById(req.params.id);
+        if (!outsource) {
             return res.status(404).json({ err: 'Outsource not found' });
         }
 
         const isAdmin = currentUser.role === 'admin';
-        const isOwnAccount = currentUser.role === 'outsource' && outSource.OutSourceId?.toString() === currentUser._id.toString();
+        const isOwnAccount = currentUser.role === 'outsource' && outsource.userId?.toString() === currentUser._id.toString();
 
         if (!isAdmin && !isOwnAccount) {
             return res.status(403).json({ err: 'Access denied. Not authorized to update this outsource account' });
         }
 
-        if (outSource.OutSourceId) {
+        // Update user credentials if provided
+        if (outsource.userId) {
             const userUpdates = {};
             if (req.body.username) userUpdates.username = req.body.username;
             if (req.body.email && typeof req.body.email === 'string') userUpdates.email = req.body.email;
             if (req.body.password) userUpdates.password = bcrypt.hashSync(req.body.password, SALT_ROUNDS);
 
             if (Object.keys(userUpdates).length > 0) {
-                await User.findByIdAndUpdate(outSource.OutSourceId, userUpdates, { runValidators: true });
+                await User.findByIdAndUpdate(outsource.userId, userUpdates, { runValidators: true });
             }
         }
 
-        const updateData = { ...req.body };
-        if (updateData.name && !mongoose.Types.ObjectId.isValid(updateData.name)) {
-            delete updateData.name;
-        }
-        if (updateData.email && !mongoose.Types.ObjectId.isValid(updateData.email)) {
-            delete updateData.email;
+        // Update profile fields
+        const allowedFields = ['name', 'phone', 'contactPerson', 'serviceTypes', 'status'];
+        for (const field of allowedFields) {
+            if (req.body[field] !== undefined) {
+                outsource[field] = req.body[field];
+            }
         }
 
-        const updatedOutsource = await OutSource.findByIdAndUpdate(req.params.id, updateData, { returnDocument: 'after', runValidators: true })
-            .populate('OutSourceId', 'username email role')
-            .populate('name', 'username')
-            .populate('email', 'email');
+        await outsource.save();
+
+        const updatedOutsource = await Outsource.findById(outsource._id)
+            .populate('userId', 'username email role');
 
         res.status(200).json(updatedOutsource);
     } catch (error) {
@@ -193,25 +192,21 @@ const update = async (req, res) => {
     }
 };
 
+// Delete an outsource account
+// For Admin only
 const deleteOutSource = async (req, res) => {
     try {
         if (!req.user || !req.user._id) {
             return res.status(401).json({ err: 'Unauthorized' });
         }
+        const outsource = await Outsource.findByIdAndDelete(req.params.id);
 
-        const currentUser = req.user.role ? req.user : await User.findById(req.user._id);
-        if (!currentUser || currentUser.role !== 'admin') {
-            return res.status(403).json({ err: 'Access denied. Only admin can delete an outsource account' });
-        }
-
-        const outSource = await OutSource.findByIdAndDelete(req.params.id);
-
-        if (!outSource) {
+        if (!outsource) {
             return res.status(404).json({ err: 'Outsource not found' });
         }
 
-        if (outSource.OutSourceId) {
-            await User.findByIdAndDelete(outSource.OutSourceId);
+        if (outsource.userId) {
+            await User.findByIdAndDelete(outsource.userId);
         }
 
         res.status(200).json({ message: 'Outsource account deleted successfully' });
