@@ -33,7 +33,7 @@ const createUser = async (req, res) => {
     if (role === "staff") {
       await Staff.create({
         userId: user._id,
-        departmentKey: req.body.departmentKey,
+        specialties: req.body.specialties || [],
       });
     }
 
@@ -71,9 +71,26 @@ const getUsers = async (req, res) => {
             filter.role = req.query.role;
         }
 
-        const users = await User.find(filter);
+       let users = await User.find(filter);
 
-        res.status(200).json(users);
+if (req.query.role === 'staff') {
+  const staffProfiles = await Staff.find({
+    userId: { $in: users.map((user) => user._id) }
+  });
+
+  users = users.map((user) => {
+    const staff = staffProfiles.find(
+      (profile) => profile.userId.toString() === user._id.toString()
+    );
+
+    return {
+      ...user.toObject(),
+      staffId: staff?._id
+    };
+  });
+}
+
+res.status(200).json(users);
     } catch (err) {
         res.status(500).json({ err: err.message });
     }
