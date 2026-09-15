@@ -202,7 +202,7 @@ const deleteOutSource = async (req, res) => {
         const outsource = await Outsource.findByIdAndDelete(req.params.id);
 
         if (!outsource) {
-            return res.status(404).json({ err: 'Outsource not found' });
+            return res.status(404).json({ err: 'The outsource is not found' });
         }
 
         if (outsource.userId) {
