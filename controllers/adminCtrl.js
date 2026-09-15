@@ -33,7 +33,7 @@ const createUser = async (req, res) => {
     if (role === "staff") {
       await Staff.create({
         userId: user._id,
-        departmentKey: req.body.departmentKey,
+        specialties: req.body.specialties || [],
       });
     }
 
