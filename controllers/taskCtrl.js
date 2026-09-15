@@ -6,7 +6,19 @@ const { OUTSOURCE_ONLY_TYPES } = require('../constants/campaignTaxonomy');
 
 const getTasks = async(req,res)=>{
     try{
-        const tasks = await Task.find();
+        const tasks = await Task.find()
+            .populate({
+                path: 'campaignId',
+                populate: {
+                    path: 'requestId'
+                }
+            })
+            .populate({
+                path: 'assignedTo',
+                populate: {
+                    path: 'userId'
+                }
+            });
 
         res.status(200).json(tasks);
     }catch(err){

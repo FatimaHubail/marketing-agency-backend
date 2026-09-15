@@ -2,13 +2,41 @@ const CampaignRequest = require('../models/CampaignRequest');
 const Campaign = require('../models/campaign');
 const Staff = require('../models/staff');
 const OutSource = require('../models/outSource');
+const Client = require('../models/client');
+const User = require('../models/user');
+
 const { OUTSOURCE_ONLY_TYPES } = require('../constants/campaignTaxonomy');
 
 const getCampaignRequests = async(req,res)=>{
     try{
         const campaignRequests = await CampaignRequest.find();
 
-        res.status(200).json(campaignRequests);
+        const requests = await Promise.all(
+            campaignRequests.map(async (request) => {
+                if (!request.clientId) {
+                    return request;
+                }
+
+                const client = await Client.findById(request.clientId);
+
+                if (!client) {
+                    return request;
+                }
+
+                const user = await User.findById(client.user);
+
+                return {
+                    ...request.toObject(),
+                    clientId: {
+                        ...client.toObject(),
+                        user: user
+                    }
+                };
+            })
+        );
+
+        res.status(200).json(requests);
+
     }catch(err){
         res.status(500).json({err: err.message});
     }
