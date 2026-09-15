@@ -40,7 +40,7 @@ const campaignSchema = new mongoose.Schema({
         min: 0,
         default: 0
     },
-});
+}, { timestamps: true });
 
 const Campaign = mongoose.model("Campaign", campaignSchema);
 module.exports = Campaign;
