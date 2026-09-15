@@ -20,28 +20,26 @@ const GOALS_BY_TYPE = {
     pr: ["media_coverage", "reputation", "crisis_response"],
 };
 
-const CAMPAIGN_TYPES_BY_CATEGORY = {
-    digital: ["social_media", "sem", "display", "influencer"],
-    content_brand: ["content_marketing", "email_marketing", "brand_awareness"],
-    offline: ["print", "ooh", "event", "broadcast", "direct_mail", "instore_activation"],
-    specialized: ["product_launch", "seo", "pr"],
-};
-
 const ALL_GOALS = [...new Set(Object.values(GOALS_BY_TYPE).flat())];
 
 const CAMPAIGN_TYPES = Object.keys(GOALS_BY_TYPE);
 
-function getCategoryForType(campaignType) {
-    const entry = Object.entries(CAMPAIGN_TYPES_BY_CATEGORY).find(([, types]) =>
-        types.includes(campaignType)
-    );
-    return entry ? entry[0] : null;
-}
+// Types that no in-house staff specializes in - these must always be
+// handled by an outsource partner rather than assigned to staff.
+const OUTSOURCE_ONLY_TYPES = [
+    "display",
+    "influencer",
+    "email_marketing",
+    "ooh",
+    "broadcast",
+    "direct_mail",
+    "instore_activation",
+    "product_launch",
+];
 
 module.exports = {
     GOALS_BY_TYPE,
-    CAMPAIGN_TYPES_BY_CATEGORY,
     ALL_GOALS,
     CAMPAIGN_TYPES,
-    getCategoryForType,
+    OUTSOURCE_ONLY_TYPES,
 };

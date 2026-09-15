@@ -18,7 +18,6 @@ const createUser = async (req, res) => {
       email: req.body.email,
       password: hashedPassword,
       role: req.body.role,
-      departmentId: req.body.departmentId
     });
 
     res.status(201).json(user);

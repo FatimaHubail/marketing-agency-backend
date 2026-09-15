@@ -10,6 +10,8 @@ router.get('/:id', campaignRequestCtrl.getCampaignRequest);
 
 router.put('/:id', campaignRequestCtrl.updateCampaignRequest);
 
+router.put('/:id/assign', campaignRequestCtrl.assignCampaignRequest);
+
 router.delete('/:id', campaignRequestCtrl.deleteCampaignRequest);
 
 module.exports = router;

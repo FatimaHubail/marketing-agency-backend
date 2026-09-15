@@ -10,7 +10,6 @@ const campaignSchema = new mongoose.Schema({
     assignedStaffId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true
     },
 
     outsourcePartnerId: { 
