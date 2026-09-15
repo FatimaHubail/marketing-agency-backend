@@ -1,4 +1,4 @@
-const CampaignRequest = require('../models/CampaignRequest');
+const CampaignRequest = require('../models/campaignRequest');
 const Campaign = require('../models/campaign');
 const Staff = require('../models/staff');
 const OutSource = require('../models/outSource');

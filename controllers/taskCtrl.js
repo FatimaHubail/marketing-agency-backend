@@ -1,6 +1,6 @@
 const  Task = require('../models/task');
 const Campaign = require('../models/campaign');
-const CampaignRequest = require('../models/CampaignRequest');
+const CampaignRequest = require('../models/campaignRequest');
 const Staff = require('../models/staff');
 const { OUTSOURCE_ONLY_TYPES } = require('../constants/campaignTaxonomy');
 
