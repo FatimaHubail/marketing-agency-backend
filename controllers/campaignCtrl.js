@@ -45,6 +45,7 @@ const getCampaigns = async (req, res) => {
     }
 }
 
+
 const getCampaign = async (req, res) => {
     try {
         const campaign = await Campaign.findById(req.params.id).populate('requestId');
