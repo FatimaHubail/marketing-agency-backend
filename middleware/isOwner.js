@@ -1,4 +1,4 @@
-const CampaignRequest = require('../models/CampaignRequest');
+const CampaignRequest = require('../models/campaignRequest');
 
 function isOwner({ status } = {}) {
     return async (req, res, next) => {

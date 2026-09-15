@@ -1,5 +1,5 @@
 const OutsourceTask = require('../models/outsourceTask');
-const Outsource = require('../models/outsource');
+const Outsource = require('../models/outSource');
 
 function isTaskOwner({ status, outsourceOnly = false } = {}) {
     return async (req, res, next) => {

@@ -1,5 +1,5 @@
 const OutsourceTask = require('../models/outsourceTask');
-const Outsource = require('../models/outsource');
+const Outsource = require('../models/outSource');
 const Staff = require('../models/staff');
 
 // Creating Outsource Task to assign them to outsources

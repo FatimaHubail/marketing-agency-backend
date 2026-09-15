@@ -1,5 +1,5 @@
 const Campaign = require('../models/campaign');
-const CampaignRequest = require('../models/CampaignRequest');
+const CampaignRequest = require('../models/campaignRequest');
 
 // Staff-driven forward progress: planning -> in_progress -> client_review,
 // and live -> completed. client_review -> live/in_progress is the client's

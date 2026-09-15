@@ -1,4 +1,4 @@
-const Outsource = require('../models/outsource');
+const Outsource = require('../models/outSource');
 
 const isOutsource = async (req, res, next) => {
     if (req.user.role !== 'outsource') {

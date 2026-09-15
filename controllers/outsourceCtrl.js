@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const Outsource = require('../models/outsource');
+const Outsource = require('../models/outSource');
 const User = require('../models/user');
 
 const SALT_ROUNDS = 10;
