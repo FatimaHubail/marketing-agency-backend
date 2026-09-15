@@ -16,15 +16,15 @@ const updateSchema = new mongoose.Schema({
 });
 
 const outsourceTaskSchema = new mongoose.Schema({
-  campaignId: {
+  staffId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Campaign',
+    ref: 'Staff',
     required: true
   },
 
   outsourceId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'outsource',
+    ref: 'Outsource',
     required: true
   },
 
