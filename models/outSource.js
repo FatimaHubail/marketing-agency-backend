@@ -3,7 +3,7 @@ const User = require('./user');
 
 const OutsourceSchema = new mongoose.Schema({
     userId: {
-        type: ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
         unique: true

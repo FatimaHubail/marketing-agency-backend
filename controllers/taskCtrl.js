@@ -1,4 +1,8 @@
 const  Task = require('../models/task');
+const Campaign = require('../models/campaign');
+const CampaignRequest = require('../models/CampaignRequest');
+const Staff = require('../models/staff');
+const { OUTSOURCE_ONLY_TYPES } = require('../constants/campaignTaxonomy');
 
 const getTasks = async(req,res)=>{
     try{
@@ -12,6 +16,28 @@ const getTasks = async(req,res)=>{
 
 const createTask = async(req,res)=>{
     try{
+        const { campaignId, assignedTo } = req.body;
+
+        const campaign = await Campaign.findById(campaignId);
+        if(!campaign){
+            return res.status(404).json({err: 'Campaign not found'});
+        }
+
+        const campaignRequest = await CampaignRequest.findById(campaign.requestId);
+
+        if(campaignRequest && OUTSOURCE_ONLY_TYPES.includes(campaignRequest.campaignType)){
+            return res.status(400).json({err: `campaignType '${campaignRequest.campaignType}' must be handled by an outsource partner, not in-house staff`});
+        }
+
+        const staff = await Staff.findById(assignedTo);
+        if(!staff){
+            return res.status(404).json({err: 'Staff member not found'});
+        }
+
+        if(campaignRequest && !staff.specialties.includes(campaignRequest.campaignType)){
+            return res.status(400).json({err: `Staff member does not specialize in '${campaignRequest.campaignType}'`});
+        }
+
         const task = await Task.create(req.body);
         res.status(201).json(task);
 
