@@ -78,17 +78,17 @@ const createOutSource = async (req, res) => {
 };
 
 //Display all the outsource in the system
-//for the campaign manager
+//for staff
 const index = async (req, res) => {
     try {
         if (!req.user || !req.user._id) {
             return res.status(401).json({ err: 'Unauthorized' });
         }
 
-        // Verify that the logged-in user is a campaign manager or admin
+        // Verify that the logged-in user is staff or admin
         const currentUser = await User.findById(req.user._id);
-        if (!currentUser || (currentUser.role !== 'campaignManager' && currentUser.role !== 'admin')) {
-            return res.status(403).json({ err: 'Access denied. Only campaign managers and admins can view outsource agencies' });
+        if (!currentUser || (currentUser.role !== 'staff' && currentUser.role !== 'admin')) {
+            return res.status(403).json({ err: 'Access denied. Only staff and admins can view outsource agencies' });
         }
 
         const outSources = await OutSource.find()
@@ -104,7 +104,7 @@ const index = async (req, res) => {
 
 
 //Display the details of the outsource
-//For the campaign manager, outsource and the admin
+//For staff, outsource and the admin
 const show = async (req, res) => {
     try {
         if (!req.user || !req.user._id) {
@@ -125,11 +125,11 @@ const show = async (req, res) => {
             return res.status(404).json({ err: 'Outsource not found' });
         }
 
-        const isCampaignManagerOrAdmin = currentUser.role === 'campaignManager' || currentUser.role === 'admin';
+        const isStaffOrAdmin = currentUser.role === 'staff' || currentUser.role === 'admin';
         const isOwnAccount = currentUser.role === 'outsource' && outSource.OutSourceId && outSource.OutSourceId._id.toString() === currentUser._id.toString();
 
-        if (!isCampaignManagerOrAdmin && !isOwnAccount) {
-            return res.status(403).json({ err: 'Access denied. Only campaign managers and admins can view outsource details' });
+        if (!isStaffOrAdmin && !isOwnAccount) {
+            return res.status(403).json({ err: 'Access denied. Only staff and admins can view outsource details' });
         }
 
         res.status(200).json(outSource);
