@@ -1,20 +1,6 @@
 const Campaign = require('../models/campaign');
 const CampaignRequest = require('../models/campaignRequest');
 
-// Staff-driven forward progress: planning -> in_progress -> client_review,
-// and live -> completed. client_review -> live/in_progress is the client's
-// call (see reviewCampaign), not staff's.
-const STAFF_TRANSITIONS = {
-    planning: 'in_progress',
-    in_progress: 'client_review',
-    live: 'completed',
-};
-
-const REVIEW_DECISION_STATUS = {
-    approved: 'live',
-    changes_requested: 'in_progress',
-};
-
 const getCampaigns = async (req, res) => {
     try {
         if (req.user.role === 'client') {
@@ -74,45 +60,10 @@ const getCampaign = async (req, res) => {
     }
 }
 
-// The client's approve / request-changes decision, only while the campaign
-// is awaiting their review.
-const reviewCampaign = async (req, res) => {
-    try {
-        const campaign = await Campaign.findById(req.params.id).populate('requestId');
-
-        if (!campaign) {
-            return res.status(404).json({ err: 'Campaign not found' });
-        }
-
-        if (!campaign.requestId || campaign.requestId.clientId.toString() !== req.user.clientId) {
-            return res.status(403).json({ err: 'Not authorized to access this campaign' });
-        }
-
-        if (campaign.status !== 'client_review') {
-            return res.status(403).json({ err: `Campaign can only be reviewed while in 'client_review' status` });
-        }
-
-        const { decision } = req.body;
-
-        if (!decision) {
-            return res.status(400).json({ err: 'decision is required' });
-        }
-
-        const nextStatus = REVIEW_DECISION_STATUS[decision];
-        if (!nextStatus) {
-            return res.status(400).json({ err: `decision must be one of: ${Object.keys(REVIEW_DECISION_STATUS).join(', ')}` });
-        }
-
-        campaign.status = nextStatus;
-        await campaign.save();
-
-        res.status(200).json(campaign);
-    } catch (err) {
-        res.status(500).json({ err: err.message });
-    }
-}
-
-const advanceCampaign = async (req, res) => {
+// Staff marks a campaign done once its work is finished. Only meaningful
+// once work has actually started - a still-empty (pending) campaign has
+// nothing to complete.
+const completeCampaign = async (req, res) => {
     try {
         const campaign = await Campaign.findById(req.params.id);
 
@@ -120,12 +71,11 @@ const advanceCampaign = async (req, res) => {
             return res.status(404).json({ err: 'Campaign not found' });
         }
 
-        const nextStatus = STAFF_TRANSITIONS[campaign.status];
-        if (!nextStatus) {
-            return res.status(400).json({ err: `Campaign in '${campaign.status}' cannot be advanced by staff` });
+        if (campaign.status !== 'in_progress') {
+            return res.status(400).json({ err: `Campaign in '${campaign.status}' cannot be marked as completed` });
         }
 
-        campaign.status = nextStatus;
+        campaign.status = 'completed';
         await campaign.save();
 
         res.status(200).json(campaign);
@@ -137,6 +87,5 @@ const advanceCampaign = async (req, res) => {
 module.exports = {
     getCampaigns,
     getCampaign,
-    reviewCampaign,
-    advanceCampaign,
+    completeCampaign,
 };
