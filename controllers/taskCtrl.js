@@ -149,6 +149,39 @@ const deleteTask = async (req, res) => {
     }
 };
 
+// All tasks assigned to a given campaign, regardless of status - scoped to
+// whoever is allowed to see that campaign (client/outsource own it, staff/
+// admin see any), mirroring campaignCtrl.getCampaign's access rules.
+const getCampaignTasks = async (req, res) => {
+    try {
+        const campaign = await Campaign.findById(req.params.campaignId).populate('requestId');
+
+        if (!campaign) {
+            return res.status(404).json({ err: 'Campaign not found' });
+        }
+
+        if (req.user.role === 'client') {
+            if (!campaign.requestId || campaign.requestId.clientId.toString() !== req.user.clientId) {
+                return res.status(403).json({ err: 'Not authorized to access this campaign' });
+            }
+        } else if (req.user.role === 'outsource') {
+            if (!campaign.outsourcePartnerId || campaign.outsourcePartnerId.toString() !== req.user._id.toString()) {
+                return res.status(403).json({ err: 'Not authorized to access this campaign' });
+            }
+        } else if (req.user.role !== 'staff' && req.user.role !== 'admin') {
+            return res.status(403).json({ err: 'Access denied' });
+        }
+
+        const tasks = await Task.find({ campaignId: campaign._id })
+            .populate('assignedTo')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json(tasks);
+    } catch (err) {
+        res.status(500).json({ err: err.message });
+    }
+};
+
 const getMyTasks = async (req, res) => {
     try {
         const tasks = await Task.find({
@@ -181,4 +214,5 @@ module.exports = {
     updateTask,
     deleteTask,
     getMyTasks,
+    getCampaignTasks,
 };
