@@ -64,15 +64,43 @@ const createUser = async (req, res) => {
 
 const getUsers = async (req, res) => {
   try {
-    const filter = {};
+    const filter = { role: { $ne: "campaignManager" } };
 
     if (req.query.role) {
       filter.role = req.query.role;
     }
 
     const users = await User.find(filter);
+    const userIds = users.map((user) => user._id);
 
-    res.status(200).json(users);
+    const [staffProfiles, outsourceProfiles] = await Promise.all([
+      Staff.find({ userId: { $in: userIds } }),
+      Outsource.find({ userId: { $in: userIds } }),
+    ]);
+
+    const specialtyByUserId = new Map(
+      staffProfiles.map((staff) => [staff.userId.toString(), staff.specialty])
+    );
+
+    const serviceTypesByUserId = new Map(
+      outsourceProfiles.map((outsource) => [outsource.userId.toString(), outsource.serviceTypes])
+    );
+
+    const enrichedUsers = users.map((user) => {
+      const userObj = user.toJSON();
+
+      if (user.role === "staff") {
+        userObj.specialty = specialtyByUserId.get(user._id.toString()) || null;
+      }
+
+      if (user.role === "outsource") {
+        userObj.serviceTypes = serviceTypesByUserId.get(user._id.toString()) || [];
+      }
+
+      return userObj;
+    });
+
+    res.status(200).json(enrichedUsers);
   } catch (error) {
     console.log(error);
     res.status(500).json({ err: error.message });
