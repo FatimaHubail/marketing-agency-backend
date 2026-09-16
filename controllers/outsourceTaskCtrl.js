@@ -146,5 +146,6 @@ module.exports = {
     index,
     show,
     update,
-    delete: deleteOutsourceTask
+    delete: deleteOutsourceTask,
+    deleteOutsourceTask
 };
