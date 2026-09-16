@@ -74,14 +74,19 @@ const getUsers = async (req, res) => {
 
         let users = await User.find(filter);
 
-        if (req.query.role === 'staff') {
-            const staffProfiles = await Staff.find({
-                userId: { $in: users.map((user) => user._id) }
-            });
+        const staffProfiles = await Staff.find({
+            userId: { $in: users.map((user) => user._id) }
+        });
 
-            users = users.map((user) => {
+        const outsourceProfiles = await Outsource.find({
+            userId: { $in: users.map((user) => user._id) }
+        });
+
+        users = users.map((user) => {
+            if (user.role === 'staff') {
                 const staff = staffProfiles.find(
-                    (profile) => profile.userId.toString() === user._id.toString()
+                    (profile) =>
+                        profile.userId.toString() === user._id.toString()
                 );
 
                 return {
@@ -89,15 +94,12 @@ const getUsers = async (req, res) => {
                     staffId: staff?._id,
                     specialties: staff?.specialties || []
                 };
-            });
-        } else if (req.query.role === 'outsource') {
-            const outsourceProfiles = await Outsource.find({
-                userId: { $in: users.map((user) => user._id) }
-            });
+            }
 
-            users = users.map((user) => {
+            if (user.role === 'outsource') {
                 const outsource = outsourceProfiles.find(
-                    (profile) => profile.userId.toString() === user._id.toString()
+                    (profile) =>
+                        profile.userId.toString() === user._id.toString()
                 );
 
                 return {
@@ -109,15 +111,18 @@ const getUsers = async (req, res) => {
                     serviceTypes: outsource?.serviceTypes || [],
                     status: outsource?.status
                 };
-            });
-        }
+            }
+
+            return user.toObject();
+        });
 
         res.status(200).json(users);
     } catch (err) {
-        res.status(500).json({ err: err.message });
+        res.status(500).json({
+            err: err.message
+        });
     }
 };
-
 const getOneUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
