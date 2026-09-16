@@ -19,9 +19,9 @@ const campaignSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ["planning", "in_progress", "client_review", "live", "completed"],
+        enum: ["pending", "in_progress", "completed"],
         required: true,
-        default: "planning"
+        default: "pending"
     },
 
     startDate: {
@@ -40,7 +40,7 @@ const campaignSchema = new mongoose.Schema({
         min: 0,
         default: 0
     },
-});
+}, { timestamps: true });
 
 const Campaign = mongoose.model("Campaign", campaignSchema);
 module.exports = Campaign;

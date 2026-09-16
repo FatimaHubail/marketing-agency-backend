@@ -16,21 +16,15 @@ const updateSchema = new mongoose.Schema({
 });
 
 const outsourceTaskSchema = new mongoose.Schema({
-  campaignId: {
+  staffId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Campaign',
+    ref: 'Staff',
     required: true
   },
 
   outsourceId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'outsource',
-    required: true
-  },
-
-  campaignManagerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Outsource',
     required: true
   },
 
@@ -89,3 +83,4 @@ const outsourceTaskSchema = new mongoose.Schema({
 const OutsourceTask = mongoose.model('OutsourceTask', outsourceTaskSchema);
 
 module.exports = OutsourceTask;
+

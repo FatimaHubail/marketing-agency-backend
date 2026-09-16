@@ -6,6 +6,9 @@ MarkOra is a marketing agency management platform that manages the full lifecycl
 
 This repository contains the **Node.js/Express API** for MarkAura.
 
+## ScreenShot of MarkAura
+![MarkAura Landing Page](/images/landingpage.jpeg)
+
 ## User Stories
 
 ### Client
@@ -92,6 +95,7 @@ Check out the wireframes sketching out layout and flow of the app covering the s
 </div>
 
 ## ERD
+![MarkAura ERD](/images/MarkAura_ERD.jpeg)
 
 
 ## Routing Tables

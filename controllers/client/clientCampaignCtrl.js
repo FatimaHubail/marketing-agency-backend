@@ -1,5 +1,5 @@
 const Campaign = require('../../models/campaign');
-const CampaignRequest = require('../../models/CampaignRequest');
+const CampaignRequest = require('../../models/campaignRequest');
 
 const DECISION_STATUS = {
     approved: 'live',

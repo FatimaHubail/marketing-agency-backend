@@ -1,48 +1,123 @@
-const CampaignRequest = require('../models/CampaignRequest');
+const CampaignRequest = require('../models/campaignRequest');
 const Campaign = require('../models/campaign');
 const Staff = require('../models/staff');
 const OutSource = require('../models/outSource');
+const Client = require('../models/client');
+const User = require('../models/user');
+
 const { OUTSOURCE_ONLY_TYPES } = require('../constants/campaignTaxonomy');
 
-const getCampaignRequests = async(req,res)=>{
-    try{
-        const campaignRequests = await CampaignRequest.find();
+const getStaffProfile = async (userId) => {
+    return await Staff.findOne({
+        userId
+    });
+};
 
-        res.status(200).json(campaignRequests);
-    }catch(err){
-        res.status(500).json({err: err.message});
+
+const getCampaignRequests = async (req, res) => {
+    try {
+        const staff = await getStaffProfile(req.user._id);
+
+        if (!staff) {
+            return res.status(404).json({
+                err: 'Staff profile not found'
+            });
+        }
+
+        const campaignRequests = await CampaignRequest.find({
+            campaignType: staff.specialty
+        });
+
+        const requests = await Promise.all(
+            campaignRequests.map(async (request) => {
+                if (!request.clientId) {
+                    return request;
+                }
+
+                const client = await Client.findById(request.clientId);
+
+                if (!client) {
+                    return request;
+                }
+
+                const user = await User.findById(client.user);
+
+                return {
+                    ...request.toObject(),
+                    clientId: {
+                        ...client.toObject(),
+                        user: user
+                    }
+                };
+            })
+        );
+
+        res.status(200).json(requests);
+
+    } catch (err) {
+        res.status(500).json({
+            err: err.message
+        });
     }
-}
+};
 
-const getCampaignRequest = async(req,res)=>{
-    try{
-        const campaignRequest = await CampaignRequest.findById(req.params.id);
 
-        if(!campaignRequest){
-            return res.status(404).json({err: 'Campaign request not found'});
+const getCampaignRequest = async (req, res) => {
+    try {
+        const staff = await getStaffProfile(req.user._id);
+
+        if (!staff) {
+            return res.status(404).json({
+                err: 'Staff profile not found'
+            });
+        }
+
+        const campaignRequest = await CampaignRequest.findOne({
+            _id: req.params.id,
+            campaignType: staff.specialty
+        });
+
+        if (!campaignRequest) {
+            return res.status(404).json({
+                err: 'Campaign request not found'
+            });
         }
 
         res.status(200).json(campaignRequest);
 
-    }catch(err){
-        res.status(500).json({err: err.message});
+    } catch (err) {
+        res.status(500).json({
+            err: err.message
+        });
     }
-}
+};
 
-// Status is intentionally not editable here - it only moves via
-// assignCampaignRequest (-> accepted) and rejectCampaignRequest (-> rejected).
-const EDITABLE_REQUEST_FIELDS = ['title', 'description', 'campaignType', 'goal', 'notes', 'budget', 'preferredChannels'];
 
-const updateCampaignRequest = async(req,res)=>{
-    try{
+// Status is intentionally not editable here.
+// It only moves via assignCampaignRequest or rejectCampaignRequest.
+const EDITABLE_REQUEST_FIELDS = [
+    'title',
+    'description',
+    'campaignType',
+    'goal',
+    'notes',
+    'budget',
+    'preferredChannels'
+];
+
+
+const updateCampaignRequest = async (req, res) => {
+    try {
         const campaignRequest = await CampaignRequest.findById(req.params.id);
 
-        if(!campaignRequest){
-            return res.status(404).json({err: 'Campaign request not found'});
+        if (!campaignRequest) {
+            return res.status(404).json({
+                err: 'Campaign request not found'
+            });
         }
 
-        for(const field of EDITABLE_REQUEST_FIELDS){
-            if(req.body[field] !== undefined){
+        for (const field of EDITABLE_REQUEST_FIELDS) {
+            if (req.body[field] !== undefined) {
                 campaignRequest[field] = req.body[field];
             }
         }
@@ -51,26 +126,48 @@ const updateCampaignRequest = async(req,res)=>{
 
         res.status(200).json(campaignRequest);
 
-    }catch(err){
-
-        if(err.name === 'ValidationError'){
-            return res.status(400).json({err: err.message});
+    } catch (err) {
+        if (err.name === 'ValidationError') {
+            return res.status(400).json({
+                err: err.message
+            });
         }
-        res.status(500).json({err: err.message});
+
+        res.status(500).json({
+            err: err.message
+        });
     }
-}
+};
 
 
-const rejectCampaignRequest = async(req,res)=>{
-    try{
-        const campaignRequest = await CampaignRequest.findById(req.params.id);
+const rejectCampaignRequest = async (req, res) => {
+    try {
+        const staff = await getStaffProfile(req.user._id);
 
-        if(!campaignRequest){
-            return res.status(404).json({err: 'Campaign request not found'});
+        if (!staff) {
+            return res.status(404).json({
+                err: 'Staff profile not found'
+            });
         }
 
-        if(campaignRequest.status === 'accepted' || campaignRequest.status === 'rejected'){
-            return res.status(400).json({err: `Request has already been ${campaignRequest.status}`});
+        const campaignRequest = await CampaignRequest.findOne({
+            _id: req.params.id,
+            campaignType: staff.specialty
+        });
+
+        if (!campaignRequest) {
+            return res.status(404).json({
+                err: 'Campaign request not found'
+            });
+        }
+
+        if (
+            campaignRequest.status === 'accepted' ||
+            campaignRequest.status === 'rejected'
+        ) {
+            return res.status(400).json({
+                err: `Request has already been ${campaignRequest.status}`
+            });
         }
 
         campaignRequest.status = 'rejected';
@@ -80,104 +177,118 @@ const rejectCampaignRequest = async(req,res)=>{
 
         res.status(200).json(campaignRequest);
 
-    }catch(err){
-        if(err.name === 'ValidationError'){
-            return res.status(400).json({err: err.message});
+    } catch (err) {
+        if (err.name === 'ValidationError') {
+            return res.status(400).json({
+                err: err.message
+            });
         }
 
-        res.status(500).json({err: err.message});
+        res.status(500).json({
+            err: err.message
+        });
     }
-}
+};
 
-const assignCampaignRequest = async(req,res)=>{
-    try{
-        const campaignRequest = await CampaignRequest.findById(req.params.id);
 
-        if(!campaignRequest){
-            return res.status(404).json({err: 'Campaign request not found'});
+const assignCampaignRequest = async (req, res) => {
+    try {
+        const staff = await getStaffProfile(req.user._id);
+
+        if (!staff) {
+            return res.status(404).json({
+                err: 'Staff profile not found'
+            });
         }
 
-        if(campaignRequest.status === 'accepted' || campaignRequest.status === 'rejected'){
-            return res.status(400).json({err: `Request has already been ${campaignRequest.status}`});
+        const campaignRequest = await CampaignRequest.findOne({
+            _id: req.params.id,
+            campaignType: staff.specialty
+        });
+
+        if (!campaignRequest) {
+            return res.status(404).json({
+                err: 'Campaign request not found'
+            });
         }
 
-        const { staffId, outsourceId, startDate, endDate } = req.body;
-
-        if(!startDate || !endDate){
-            return res.status(400).json({err: 'startDate and endDate are required'});
+        if (
+            campaignRequest.status === 'accepted' ||
+            campaignRequest.status === 'rejected'
+        ) {
+            return res.status(400).json({
+                err: `Request has already been ${campaignRequest.status}`
+            });
         }
 
-        
-        const isOutsourceOnly = OUTSOURCE_ONLY_TYPES.includes(campaignRequest.campaignType);
+        const {
+            startDate,
+            endDate
+        } = req.body;
 
-        if(isOutsourceOnly){
-            if(staffId){
-                return res.status(400).json({err: `campaignType '${campaignRequest.campaignType}' must be assigned to an outsource partner, not in-house staff`});
-            }
+        if (!startDate || !endDate) {
+            return res.status(400).json({
+                err: 'startDate and endDate are required'
+            });
+        }
 
-            if(!outsourceId){
-                return res.status(400).json({err: 'outsourceId is required'});
-            }
+        const isOutsourceOnly = OUTSOURCE_ONLY_TYPES.includes(
+            campaignRequest.campaignType
+        );
 
-            const outsource = await OutSource.findOne({ userId: outsourceId });
-            if(!outsource){
-                return res.status(404).json({err: 'Outsource partner not found'});
-            }
-            if(!outsource.serviceTypes.includes(campaignRequest.campaignType)){
-                return res.status(400).json({err: `Outsource partner does not provide '${campaignRequest.campaignType}' services`});
-            }
-        } else {
-            if(outsourceId){
-                return res.status(400).json({err: `campaignType '${campaignRequest.campaignType}' must be assigned to in-house staff, not an outsource partner`});
-            }
-
-            if(!staffId){
-                return res.status(400).json({err: 'staffId is required'});
-            }
-
-            const staff = await Staff.findOne({ userId: staffId });
-            if(!staff){
-                return res.status(404).json({err: 'Staff member not found'});
-            }
-            if(!staff.specialties.includes(campaignRequest.campaignType)){
-                return res.status(400).json({err: `Staff member does not specialize in '${campaignRequest.campaignType}'`});
-            }
+        if (isOutsourceOnly) {
+            return res.status(400).json({
+                err: `campaignType '${campaignRequest.campaignType}' must be handled by an outsource partner`
+            });
         }
 
         const campaign = await Campaign.create({
             requestId: campaignRequest._id,
-            assignedStaffId: staffId || undefined,
-            outsourcePartnerId: outsourceId || undefined,
+            assignedStaffId: staff._id,
             startDate,
-            endDate,
+            endDate
         });
 
         campaignRequest.status = 'accepted';
+
         await campaignRequest.save();
 
-        res.status(201).json({ campaignRequest, campaign });
+        res.status(201).json({
+            campaignRequest,
+            campaign
+        });
 
-    }catch(err){
-        res.status(500).json({err: err.message});
+    } catch (err) {
+        res.status(500).json({
+            err: err.message
+        });
     }
-}
+};
 
-const deleteCampaignRequest = async(req,res)=>{
-    try{
-        const campaignRequest = await CampaignRequest.findByIdAndDelete(req.params.id);
 
-        if(!campaignRequest){
-            return res.status(404).json({err: 'Campaign request not found'});
+const deleteCampaignRequest = async (req, res) => {
+    try {
+        const campaignRequest = await CampaignRequest.findByIdAndDelete(
+            req.params.id
+        );
+
+        if (!campaignRequest) {
+            return res.status(404).json({
+                err: 'Campaign request not found'
+            });
         }
 
         res.status(200).json({
             message: 'Campaign request deleted successfully'
         });
 
-    }catch(err){
-        res.status(500).json({err: err.message});
+    } catch (err) {
+        res.status(500).json({
+            err: err.message
+        });
     }
-}
+};
+
 
 module.exports = {
     getCampaignRequests,
@@ -186,4 +297,4 @@ module.exports = {
     assignCampaignRequest,
     rejectCampaignRequest,
     deleteCampaignRequest
-}
+};

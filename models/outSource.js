@@ -9,14 +9,6 @@ const OutsourceSchema = new mongoose.Schema({
         unique: true
     },
     name: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    phone:{
-        type: String,
-        required: true
-    },
-    outSourceType: {
         type: String,
         required: true
     },
@@ -39,5 +31,5 @@ const OutsourceSchema = new mongoose.Schema({
     }
 });
 
-const OutSource = mongoose.model('OutSource', OutsourceSchema);
-module.exports = OutSource;
+const Outsource = mongoose.model('Outsource', OutsourceSchema);
+module.exports = Outsource;

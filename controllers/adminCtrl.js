@@ -1,82 +1,110 @@
 const User = require("../models/user");
 const Staff = require("../models/staff");
-const OutSource = require("../models/outSource");
+const Outsource = require("../models/outSource");
 const bcrypt = require("bcrypt");
 
 const createUser = async (req, res) => {
-  try {
-    const { username, email, password, role } = req.body;
-
-    if (!["campaignManager", "staff", "outsource"].includes(role)) {
-      return res.status(400).json({
-        err: "Invalid role",
-      });
-    }
-
-    const userInDatabase = await User.findOne({ username });
-
-    if (userInDatabase) {
-      return res.status(409).json({
-        err: "Username already exists",
-      });
-    }
-
-    const hashedPassword = bcrypt.hashSync(password, 5);
-
-    const user = await User.create({
-      username,
-      email,
-      password: hashedPassword,
-      role,
-    });
-
-    if (role === "staff") {
-      await Staff.create({
-        userId: user._id,
-        departmentKey: req.body.departmentKey,
-      });
-    }
-
-    if (role === 'outsource') {
-    await OutSource.create({
-        OutSourceId: user._id,
-        phone: req.body.phone,
-        outSourceType: req.body.outSourceType,
-        outSourceStatus: req.body.outSourceStatus
-    });
-}
-
-    res.status(201).json(user);
-  } catch (err) {
-    res.status(500).json({ err: err.message });
-  }
-};
-
-
-const getUsers = async (req, res) => {
     try {
-        const allowedRoles = ['campaignManager', 'staff', 'outsource'];
+        const { username, email, password, role } = req.body;
 
-        let filter = {
-            role: { $in: allowedRoles }
-        };
-
-        if (req.query.role) {
-            if (!allowedRoles.includes(req.query.role)) {
-                return res.status(400).json({
-                    err: 'Invalid role'
-                });
-            }
-
-            filter.role = req.query.role;
+        if (!["admin", "staff", "outsource"].includes(role)) {
+            return res.status(400).json({
+                err: "Invalid role",
+            });
         }
 
-        const users = await User.find(filter);
+        const userInDatabase = await User.findOne({ username });
 
-        res.status(200).json(users);
+        if (userInDatabase) {
+            return res.status(409).json({
+                err: "Username already exists",
+            });
+        }
+
+        const hashedPassword = bcrypt.hashSync(password, 5);
+
+        const user = await User.create({
+            username,
+            email,
+            password: hashedPassword,
+            role,
+        });
+
+        if (role === "staff") {
+            await Staff.create({
+                userId: user._id,
+                specialty: req.body.specialty,
+            });
+        }
+
+        if (role === "outsource") {
+            await Outsource.create({
+                userId: user._id,
+                name: req.body.name,
+                phone: req.body.phone,
+                contactPerson: req.body.contactPerson,
+                serviceTypes: req.body.serviceTypes || [],
+                status: req.body.status || "available",
+            });
+        }
+
+        res.status(201).json(user);
     } catch (err) {
-        res.status(500).json({ err: err.message });
+    if (err.code === 11000 && err.keyPattern?.specialty) {
+        return res.status(400).json({
+            err: "This specialty is already assigned to another staff member."
+        });
     }
+
+    res.status(500).json({
+        err: err.message
+    });
+}
+};
+
+const getUsers = async (req, res) => {
+  try {
+    const filter = { role: { $ne: "campaignManager" } };
+
+    if (req.query.role) {
+      filter.role = req.query.role;
+    }
+
+    const users = await User.find(filter);
+    const userIds = users.map((user) => user._id);
+
+    const [staffProfiles, outsourceProfiles] = await Promise.all([
+      Staff.find({ userId: { $in: userIds } }),
+      Outsource.find({ userId: { $in: userIds } }),
+    ]);
+
+    const specialtyByUserId = new Map(
+      staffProfiles.map((staff) => [staff.userId.toString(), staff.specialty])
+    );
+
+    const serviceTypesByUserId = new Map(
+      outsourceProfiles.map((outsource) => [outsource.userId.toString(), outsource.serviceTypes])
+    );
+
+    const enrichedUsers = users.map((user) => {
+      const userObj = user.toJSON();
+
+      if (user.role === "staff") {
+        userObj.specialty = specialtyByUserId.get(user._id.toString()) || null;
+      }
+
+      if (user.role === "outsource") {
+        userObj.serviceTypes = serviceTypesByUserId.get(user._id.toString()) || [];
+      }
+
+      return userObj;
+    });
+
+    res.status(200).json(enrichedUsers);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ err: error.message });
+  }
 };
 
 const getOneUser = async (req, res) => {
@@ -85,32 +113,31 @@ const getOneUser = async (req, res) => {
 
         if (!user) {
             return res.status(404).json({
-                err: 'User not found'
+                err: "User not found",
             });
         }
 
         let profile = null;
 
-        if (user.role === 'staff') {
+        if (user.role === "staff") {
             profile = await Staff.findOne({
-                userId: user._id
+                userId: user._id,
             });
         }
 
-        if (user.role === 'outsource') {
-            profile = await OutSource.findOne({
-                OutSourceId: user._id
+        if (user.role === "outsource") {
+            profile = await Outsource.findOne({
+                userId: user._id,
             });
         }
 
         res.status(200).json({
             user,
-            profile
+            profile,
         });
-
     } catch (err) {
         res.status(500).json({
-            err: err.message
+            err: err.message,
         });
     }
 };
@@ -121,7 +148,7 @@ const updateUser = async (req, res) => {
 
         if (!user) {
             return res.status(404).json({
-                err: 'User not found'
+                err: "User not found",
             });
         }
 
@@ -129,7 +156,16 @@ const updateUser = async (req, res) => {
 
         if (username) user.username = username;
         if (email) user.email = email;
-        if (role) user.role = role;
+
+        if (role) {
+            if (!["admin", "staff", "outsource"].includes(role)) {
+                return res.status(400).json({
+                    err: "Invalid role",
+                });
+            }
+
+            user.role = role;
+        }
 
         if (password) {
             user.password = bcrypt.hashSync(password, 5);
@@ -137,34 +173,56 @@ const updateUser = async (req, res) => {
 
         await user.save();
 
-        if (user.role === 'staff') {
+        if (user.role === "staff") {
             await Staff.findOneAndUpdate(
                 { userId: user._id },
                 {
-                    departmentKey: req.body.departmentKey,
-                    specialties: req.body.specialties
+                    specialty: req.body.specialty,
                 },
-                { new: true }
+                {
+                    new: true,
+                    upsert: true,
+                }
             );
         }
 
-        if (user.role === 'outsource') {
-            await OutSource.findOneAndUpdate(
-                { OutSourceId: user._id },
+        if (user.role === "outsource") {
+            const outsourceUpdate = {};
+
+            if (req.body.name !== undefined) {
+                outsourceUpdate.name = req.body.name;
+            }
+
+            if (req.body.phone !== undefined) {
+                outsourceUpdate.phone = req.body.phone;
+            }
+
+            if (req.body.contactPerson !== undefined) {
+                outsourceUpdate.contactPerson = req.body.contactPerson;
+            }
+
+            if (req.body.serviceTypes !== undefined) {
+                outsourceUpdate.serviceTypes = req.body.serviceTypes;
+            }
+
+            if (req.body.status !== undefined) {
+                outsourceUpdate.status = req.body.status;
+            }
+
+            await Outsource.findOneAndUpdate(
+                { userId: user._id },
+                outsourceUpdate,
                 {
-                    phone: req.body.phone,
-                    outSourceType: req.body.outSourceType,
-                    outSourceStatus: req.body.outSourceStatus
-                },
-                { new: true }
+                    new: true,
+                    upsert: true,
+                }
             );
         }
 
         res.status(200).json(user);
-
     } catch (err) {
         res.status(500).json({
-            err: err.message
+            err: err.message,
         });
     }
 };
@@ -175,36 +233,38 @@ const deleteUser = async (req, res) => {
 
         if (!user) {
             return res.status(404).json({
-                err: 'User not found'
+                err: "User not found",
             });
         }
 
-        if (user.role === 'staff') {
+        if (user.role === "staff") {
             await Staff.findOneAndDelete({
-                userId: user._id
+                userId: user._id,
             });
         }
 
-        if (user.role === 'outsource') {
-            await OutSource.findOneAndDelete({
-                OutSourceId: user._id
+        if (user.role === "outsource") {
+            await Outsource.findOneAndDelete({
+                userId: user._id,
             });
         }
 
         await User.findByIdAndDelete(user._id);
 
         res.status(200).json({
-            message: 'User deleted successfully'
+            message: "User deleted successfully",
         });
-
     } catch (err) {
         res.status(500).json({
-            err: err.message
+            err: err.message,
         });
     }
 };
 
-
 module.exports = {
-  createUser, getUsers, getOneUser, updateUser, deleteUser,
+    createUser,
+    getUsers,
+    getOneUser,
+    updateUser,
+    deleteUser,
 };

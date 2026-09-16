@@ -1,12 +1,22 @@
 const express = require('express');
+
 const router = express.Router();
 
-const isStaff = require('../middleware/isStaff');
 const taskCtrl = require('../controllers/taskCtrl');
+const isSignedIn = require('../middleware/isSignedIn');
 
-router.get('/', isStaff, taskCtrl.getTasks);
-router.post('/', isStaff, taskCtrl.createTask);
-router.put('/:id', isStaff, taskCtrl.updateTask);
-router.delete('/:id', isStaff, taskCtrl.deleteTask);
+router.use(isSignedIn);
+
+router.get('/', taskCtrl.getTasks);
+
+router.post('/', taskCtrl.createTask);
+
+router.put('/:id', taskCtrl.updateTask);
+
+router.delete('/:id', taskCtrl.deleteTask);
+
+router.get('/my-tasks',taskCtrl.getMyTasks);
+
+router.get('/campaign/:campaignId', taskCtrl.getCampaignTasks);
 
 module.exports = router;

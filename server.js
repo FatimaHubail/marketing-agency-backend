@@ -27,6 +27,9 @@ const clientCampReqRouter = require('./routes/client/clientCampaignRequestRouter
 const clientCampaignRouter = require('./routes/client/clientCampaignRouter');
 const agencyClientRoutes = require('./routes/agencyClientRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const outsourceRoutes = require('./routes/outsource/outsourceRoute');
+const outsourceTaskRoutes = require('./routes/outsource/outsourceTaskRoutes');
+const staffRoutes = require('./routes/staffRoutes');
 
 app.use(cors());
 app.use(express.json());
@@ -37,6 +40,7 @@ app.use(logger('dev'));
 // PUBLIC
 app.use('/auth', authRouter);
 
+
 // PROTECTED
 app.use(isSignedIn);
 
@@ -45,7 +49,9 @@ app.use('/users', userRoutes);
 app.use('/tasks', taskRoutes);
 app.use('/clients', agencyClientRoutes);
 app.use('/admin', isAdmin, adminRoutes);
-
+app.use('/outsource', outsourceRoutes);
+app.use('/outsource-tasks', outsourceTaskRoutes);
+app.use('/staff',staffRoutes);
 
 // client campaign requests routes
 app.use('/requests', clientCampReqRouter);

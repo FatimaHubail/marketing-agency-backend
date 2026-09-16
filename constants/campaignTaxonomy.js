@@ -24,6 +24,8 @@ const ALL_GOALS = [...new Set(Object.values(GOALS_BY_TYPE).flat())];
 
 const CAMPAIGN_TYPES = Object.keys(GOALS_BY_TYPE);
 
+const PREFERRED_CHANNELS = ['instagram', 'tiktok', 'snapchat', 'email', 'sms', 'google_ads'];
+
 // Types that no in-house staff specializes in - these must always be
 // handled by an outsource partner rather than assigned to staff.
 const OUTSOURCE_ONLY_TYPES = [
@@ -42,4 +44,5 @@ module.exports = {
     ALL_GOALS,
     CAMPAIGN_TYPES,
     OUTSOURCE_ONLY_TYPES,
+    PREFERRED_CHANNELS,
 };
