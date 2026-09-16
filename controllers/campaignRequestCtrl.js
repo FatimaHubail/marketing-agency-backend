@@ -7,11 +7,16 @@ const User = require('../models/user');
 
 const { OUTSOURCE_ONLY_TYPES } = require('../constants/campaignTaxonomy');
 
+const getStaffProfile = async (userId) => {
+    return await Staff.findOne({
+        userId
+    });
+};
+
+
 const getCampaignRequests = async (req, res) => {
     try {
-        const staff = await Staff.findOne({
-            userId: req.user._id
-        });
+        const staff = await getStaffProfile(req.user._id);
 
         if (!staff) {
             return res.status(404).json({
@@ -59,7 +64,18 @@ const getCampaignRequests = async (req, res) => {
 
 const getCampaignRequest = async (req, res) => {
     try {
-        const campaignRequest = await CampaignRequest.findById(req.params.id);
+        const staff = await getStaffProfile(req.user._id);
+
+        if (!staff) {
+            return res.status(404).json({
+                err: 'Staff profile not found'
+            });
+        }
+
+        const campaignRequest = await CampaignRequest.findOne({
+            _id: req.params.id,
+            campaignType: staff.specialty
+        });
 
         if (!campaignRequest) {
             return res.status(404).json({
@@ -77,8 +93,8 @@ const getCampaignRequest = async (req, res) => {
 };
 
 
-// Status is intentionally not editable here - it only moves via
-// assignCampaignRequest (-> accepted) and rejectCampaignRequest (-> rejected).
+// Status is intentionally not editable here.
+// It only moves via assignCampaignRequest or rejectCampaignRequest.
 const EDITABLE_REQUEST_FIELDS = [
     'title',
     'description',
@@ -111,7 +127,6 @@ const updateCampaignRequest = async (req, res) => {
         res.status(200).json(campaignRequest);
 
     } catch (err) {
-
         if (err.name === 'ValidationError') {
             return res.status(400).json({
                 err: err.message
@@ -127,7 +142,18 @@ const updateCampaignRequest = async (req, res) => {
 
 const rejectCampaignRequest = async (req, res) => {
     try {
-        const campaignRequest = await CampaignRequest.findById(req.params.id);
+        const staff = await getStaffProfile(req.user._id);
+
+        if (!staff) {
+            return res.status(404).json({
+                err: 'Staff profile not found'
+            });
+        }
+
+        const campaignRequest = await CampaignRequest.findOne({
+            _id: req.params.id,
+            campaignType: staff.specialty
+        });
 
         if (!campaignRequest) {
             return res.status(404).json({
@@ -152,7 +178,6 @@ const rejectCampaignRequest = async (req, res) => {
         res.status(200).json(campaignRequest);
 
     } catch (err) {
-
         if (err.name === 'ValidationError') {
             return res.status(400).json({
                 err: err.message
@@ -168,7 +193,18 @@ const rejectCampaignRequest = async (req, res) => {
 
 const assignCampaignRequest = async (req, res) => {
     try {
-        const campaignRequest = await CampaignRequest.findById(req.params.id);
+        const staff = await getStaffProfile(req.user._id);
+
+        if (!staff) {
+            return res.status(404).json({
+                err: 'Staff profile not found'
+            });
+        }
+
+        const campaignRequest = await CampaignRequest.findOne({
+            _id: req.params.id,
+            campaignType: staff.specialty
+        });
 
         if (!campaignRequest) {
             return res.status(404).json({
@@ -186,8 +222,6 @@ const assignCampaignRequest = async (req, res) => {
         }
 
         const {
-            staffId,
-            outsourceId,
             startDate,
             endDate
         } = req.body;
@@ -203,76 +237,16 @@ const assignCampaignRequest = async (req, res) => {
         );
 
         if (isOutsourceOnly) {
-
-            if (staffId) {
-                return res.status(400).json({
-                    err: `campaignType '${campaignRequest.campaignType}' must be assigned to an outsource partner, not in-house staff`
-                });
-            }
-
-            if (!outsourceId) {
-                return res.status(400).json({
-                    err: 'outsourceId is required'
-                });
-            }
-
-            const outsource = await OutSource.findOne({
-                userId: outsourceId
+            return res.status(400).json({
+                err: `campaignType '${campaignRequest.campaignType}' must be handled by an outsource partner`
             });
-
-            if (!outsource) {
-                return res.status(404).json({
-                    err: 'Outsource partner not found'
-                });
-            }
-
-            if (
-                !outsource.serviceTypes.includes(
-                    campaignRequest.campaignType
-                )
-            ) {
-                return res.status(400).json({
-                    err: `Outsource partner does not provide '${campaignRequest.campaignType}' services`
-                });
-            }
-
-        } else {
-
-            if (outsourceId) {
-                return res.status(400).json({
-                    err: `campaignType '${campaignRequest.campaignType}' must be assigned to in-house staff, not an outsource partner`
-                });
-            }
-
-            if (!staffId) {
-                return res.status(400).json({
-                    err: 'staffId is required'
-                });
-            }
-
-            const staff = await Staff.findOne({
-                userId: staffId
-            });
-
-            if (!staff) {
-                return res.status(404).json({
-                    err: 'Staff member not found'
-                });
-            }
-
-            if (staff.specialty !== campaignRequest.campaignType) {
-                return res.status(400).json({
-                    err: `Staff member does not specialize in '${campaignRequest.campaignType}'`
-                });
-            }
         }
 
         const campaign = await Campaign.create({
             requestId: campaignRequest._id,
-            assignedStaffId: staffId || undefined,
-            outsourcePartnerId: outsourceId || undefined,
+            assignedStaffId: staff._id,
             startDate,
-            endDate,
+            endDate
         });
 
         campaignRequest.status = 'accepted';
