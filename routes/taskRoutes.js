@@ -17,4 +17,6 @@ router.delete('/:id', taskCtrl.deleteTask);
 
 router.get('/my-tasks',taskCtrl.getMyTasks);
 
+router.get('/campaign/:campaignId', taskCtrl.getCampaignTasks);
+
 module.exports = router;

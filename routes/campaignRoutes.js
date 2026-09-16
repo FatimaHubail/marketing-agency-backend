@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-const isClient = require('../middleware/isClient');
 const isStaff = require('../middleware/isStaff');
 const campaignCtrl = require('../controllers/campaignCtrl');
 
@@ -11,7 +10,6 @@ const campaignCtrl = require('../controllers/campaignCtrl');
 router.get('/', campaignCtrl.getCampaigns);
 router.get('/:id', campaignCtrl.getCampaign);
 
-router.put('/:id/review', isClient, campaignCtrl.reviewCampaign);
-router.put('/:id/advance', isStaff, campaignCtrl.advanceCampaign);
+router.put('/:id/complete', isStaff, campaignCtrl.completeCampaign);
 
 module.exports = router;

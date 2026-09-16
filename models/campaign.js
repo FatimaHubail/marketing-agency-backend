@@ -19,9 +19,9 @@ const campaignSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ["planning", "in_progress", "client_review", "live", "completed"],
+        enum: ["pending", "in_progress", "completed"],
         required: true,
-        default: "planning"
+        default: "pending"
     },
 
     startDate: {

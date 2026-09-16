@@ -1,4 +1,22 @@
 const Task = require('../models/task');
+const Campaign = require('../models/campaign');
+
+// Keeps a campaign's status in sync with its own task count only - never
+// touches 'completed', since that's a manual, staff-driven terminal state.
+const syncCampaignStatus = async (campaignId) => {
+    if (!campaignId) return;
+
+    const campaign = await Campaign.findById(campaignId);
+    if (!campaign || campaign.status === 'completed') return;
+
+    const taskCount = await Task.countDocuments({ campaignId });
+    const nextStatus = taskCount > 0 ? 'in_progress' : 'pending';
+
+    if (campaign.status !== nextStatus) {
+        campaign.status = nextStatus;
+        await campaign.save();
+    }
+};
 
 const getTasks = async (req, res) => {
     try {
@@ -21,6 +39,16 @@ const getTasks = async (req, res) => {
 
 const createTask = async (req, res) => {
     try {
+        const campaign = await Campaign.findById(req.body.campaignId);
+
+        if (!campaign) {
+            return res.status(404).json({ err: 'Campaign not found' });
+        }
+
+        if (campaign.status === 'completed') {
+            return res.status(400).json({ err: 'Cannot add tasks to a completed campaign' });
+        }
+
         const taskData = {
             ...req.body,
             assignedBy: req.user._id
@@ -33,6 +61,8 @@ const createTask = async (req, res) => {
         }
 
         const task = await Task.create(taskData);
+
+        await syncCampaignStatus(task.campaignId);
 
         const populatedTask = await Task.findById(task._id)
             .populate({
@@ -56,6 +86,16 @@ const createTask = async (req, res) => {
 
 const updateTask = async (req, res) => {
     try {
+        const previousTask = await Task.findById(req.params.id);
+
+        if (!previousTask) {
+            return res.status(404).json({
+                err: 'Task not found'
+            });
+        }
+
+        const previousCampaignId = previousTask.campaignId;
+
         const task = await Task.findByIdAndUpdate(
             req.params.id,
             req.body,
@@ -70,10 +110,11 @@ const updateTask = async (req, res) => {
             .populate('assignedTo')
             .populate('assignedBy');
 
-        if (!task) {
-            return res.status(404).json({
-                err: 'Task not found'
-            });
+        const newCampaignId = task.campaignId?._id || task.campaignId;
+
+        if (String(previousCampaignId) !== String(newCampaignId)) {
+            await syncCampaignStatus(previousCampaignId);
+            await syncCampaignStatus(newCampaignId);
         }
 
         res.status(200).json(task);
@@ -95,6 +136,8 @@ const deleteTask = async (req, res) => {
             });
         }
 
+        await syncCampaignStatus(task.campaignId);
+
         res.status(200).json({
             message: 'Task deleted successfully'
         });
@@ -103,6 +146,39 @@ const deleteTask = async (req, res) => {
         res.status(500).json({
             err: err.message
         });
+    }
+};
+
+// All tasks assigned to a given campaign, regardless of status - scoped to
+// whoever is allowed to see that campaign (client/outsource own it, staff/
+// admin see any), mirroring campaignCtrl.getCampaign's access rules.
+const getCampaignTasks = async (req, res) => {
+    try {
+        const campaign = await Campaign.findById(req.params.campaignId).populate('requestId');
+
+        if (!campaign) {
+            return res.status(404).json({ err: 'Campaign not found' });
+        }
+
+        if (req.user.role === 'client') {
+            if (!campaign.requestId || campaign.requestId.clientId.toString() !== req.user.clientId) {
+                return res.status(403).json({ err: 'Not authorized to access this campaign' });
+            }
+        } else if (req.user.role === 'outsource') {
+            if (!campaign.outsourcePartnerId || campaign.outsourcePartnerId.toString() !== req.user._id.toString()) {
+                return res.status(403).json({ err: 'Not authorized to access this campaign' });
+            }
+        } else if (req.user.role !== 'staff' && req.user.role !== 'admin') {
+            return res.status(403).json({ err: 'Access denied' });
+        }
+
+        const tasks = await Task.find({ campaignId: campaign._id })
+            .populate('assignedTo')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json(tasks);
+    } catch (err) {
+        res.status(500).json({ err: err.message });
     }
 };
 
@@ -138,4 +214,5 @@ module.exports = {
     updateTask,
     deleteTask,
     getMyTasks,
+    getCampaignTasks,
 };
