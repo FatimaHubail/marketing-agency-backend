@@ -59,9 +59,23 @@ const getTasks = async(req,res)=>{
 
 const createTask = async(req,res)=>{
     try{
-        req.body.assignedBy = req.user._id;
+        if(req.user.role !== 'staff'){
+            return res.status(403).json({
+                err: 'Only staff can create tasks'
+            });
+        }
 
-        const { campaignId, assignedTo, assignedToType } = req.body;
+        const staff = await Staff.findOne({
+            userId: req.user._id
+        });
+
+        if(!staff){
+            return res.status(404).json({
+                err: 'Staff profile not found'
+            });
+        }
+
+        const { campaignId } = req.body;
 
         const campaign = await Campaign.findById(campaignId);
 
@@ -71,59 +85,34 @@ const createTask = async(req,res)=>{
             });
         }
 
-        const campaignRequest = await CampaignRequest.findById(campaign.requestId);
+        const campaignRequest = await CampaignRequest.findById(
+            campaign.requestId
+        );
 
-        if(!['Staff', 'Outsource'].includes(assignedToType)){
+        if(
+            campaignRequest &&
+            OUTSOURCE_ONLY_TYPES.includes(campaignRequest.campaignType)
+        ){
             return res.status(400).json({
-                err: 'Invalid assignedToType'
+                err: `campaignType '${campaignRequest.campaignType}' must be handled by an outsource partner`
             });
         }
 
-        if(assignedToType === 'Staff') {
-            if(campaignRequest && OUTSOURCE_ONLY_TYPES.includes(campaignRequest.campaignType)){
-                return res.status(400).json({
-                    err: `campaignType '${campaignRequest.campaignType}' must be handled by an outsource partner`
-                });
-            }
-
-            const staff = await Staff.findById(assignedTo);
-
-            if(!staff){
-                return res.status(404).json({
-                    err: 'Staff member not found'
-                });
-            }
-
-            if(
-                campaignRequest &&
-                !staff.specialty.includes(campaignRequest.campaignType)
-            ){
-                return res.status(400).json({
-                    err: `Staff member does not specialize in '${campaignRequest.campaignType}'`
-                });
-            }
+        if(
+            campaignRequest &&
+            staff.specialty !== campaignRequest.campaignType
+        ){
+            return res.status(400).json({
+                err: `You do not specialize in '${campaignRequest.campaignType}'`
+            });
         }
 
-        if(assignedToType === 'Outsource') {
-            const outsource = await Outsource.findById(assignedTo);
-
-            if(!outsource){
-                return res.status(404).json({
-                    err: 'Outsource agency not found'
-                });
-            }
-
-            if(
-                campaignRequest &&
-                !outsource.serviceTypes.includes(campaignRequest.campaignType)
-            ){
-                return res.status(400).json({
-                    err: `Outsource agency does not provide '${campaignRequest.campaignType}'`
-                });
-            }
-        }
-
-        const task = await Task.create(req.body);
+        const task = await Task.create({
+            ...req.body,
+            assignedTo: staff._id,
+            assignedToType: 'Staff',
+            assignedBy: req.user._id
+        });
 
         res.status(201).json(task);
 
