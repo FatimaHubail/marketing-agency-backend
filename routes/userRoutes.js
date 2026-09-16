@@ -6,6 +6,7 @@ const userCtrl = require('../controllers/userCtrl');
 router.post('/', userCtrl.createUser);
 router.put('/:id', userCtrl.updateUser);
 router.get('/',userCtrl.getUsers);
+router.get('/outsource', userCtrl.getOutsourceUsers);
 router.get('/:id', userCtrl.getOneUser)
 
 module.exports = router;

@@ -49,7 +49,13 @@ const updateUser = async (req, res) => {
 
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const filter = {};
+
+    if (req.query.role) {
+      filter.role = req.query.role;
+    }
+
+    const users = await User.find(filter);
 
     res.status(200).json(users);
   } catch (error) {
@@ -74,7 +80,18 @@ const getOneUser = async(req,res)=>{
 }
 
 
+const getOutsourceUsers = async (req, res) => {
+  try {
+    const users = await User.find({ role: "outsource" });
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ err: error.message });
+  }
+};
+
 
 module.exports = {
-  createUser, updateUser, getUsers, getOneUser,
+  createUser, updateUser, getUsers, getOneUser, getOutsourceUsers,
 };
