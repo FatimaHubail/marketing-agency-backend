@@ -5,31 +5,6 @@ const Client = require('../models/client');
 
 const SALT_ROUNDS = 10;
 
-const signup = async (req, res) => {
-  try {
-    const userInDatabase = await User.findOne({ username: req.body.username });
-    if (userInDatabase) {
-      return res.status(409).json({ err: 'Invalid input' });
-    }
-
-    const hashedPassword = bcrypt.hashSync(req.body.password, SALT_ROUNDS);
-    req.body.password = hashedPassword;
-
-    const user = await User.create(req.body);
-    const payload = {
-      username: user.username,
-      _id: user._id,
-    };
-
-    const token = jwt.sign(payload, process.env.JWT_SECRET);
-
-    res.status(201).json({ user, token });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ err: 'something went wrong' });
-  }
-};
-
 const login = async (req, res) => {
   try {
     const userInDatabase = await User.findOne({ email: req.body.email });
@@ -148,7 +123,6 @@ const registerClient = async (req, res) => {
 };
 
 module.exports = {
-  signup,
   login,
   registerClient,
 };
