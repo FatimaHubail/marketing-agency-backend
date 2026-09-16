@@ -21,10 +21,18 @@ const getTasks = async (req, res) => {
 
 const createTask = async (req, res) => {
     try {
-        const task = await Task.create({
+        const taskData = {
             ...req.body,
             assignedBy: req.user._id
-        });
+        };
+
+        // If staff doesn't choose an outsource,
+        // assign the task to themselves
+        if (req.user.role === "staff" && !taskData.assignedTo) {
+            taskData.assignedTo = req.user._id;
+        }
+
+        const task = await Task.create(taskData);
 
         const populatedTask = await Task.findById(task._id)
             .populate({
@@ -40,7 +48,9 @@ const createTask = async (req, res) => {
 
     } catch (err) {
         console.log(err);
-        res.status(500).json({ err: err.message });
+        res.status(500).json({
+            err: err.message
+        });
     }
 };
 
@@ -96,9 +106,36 @@ const deleteTask = async (req, res) => {
     }
 };
 
+const getMyTasks = async (req, res) => {
+    try {
+        const tasks = await Task.find({
+            $or: [
+                { assignedTo: req.user._id },
+                { assignedBy: req.user._id }
+            ]
+        })
+            .populate({
+                path: 'campaignId',
+                populate: {
+                    path: 'requestId'
+                }
+            })
+            .populate('assignedTo')
+            .populate('assignedBy');
+
+        res.status(200).json(tasks);
+
+    } catch (err) {
+        res.status(500).json({
+            err: err.message
+        });
+    }
+};
+
 module.exports = {
     getTasks,
     createTask,
     updateTask,
-    deleteTask
+    deleteTask,
+    getMyTasks,
 };
