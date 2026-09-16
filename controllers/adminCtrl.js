@@ -63,73 +63,20 @@ const createUser = async (req, res) => {
 };
 
 const getUsers = async (req, res) => {
-    try {
-        const allowedRoles = ["admin", "staff", "outsource"];
+  try {
+    const filter = {};
 
-        let filter = {
-            role: { $in: allowedRoles },
-        };
-
-        if (req.query.role) {
-            if (!allowedRoles.includes(req.query.role)) {
-                return res.status(400).json({
-                    err: "Invalid role",
-                });
-            }
-
-            filter.role = req.query.role;
-        }
-
-        let users = await User.find(filter);
-
-        const staffProfiles = await Staff.find({
-            userId: { $in: users.map((user) => user._id) },
-        });
-
-        const outsourceProfiles = await Outsource.find({
-            userId: { $in: users.map((user) => user._id) },
-        });
-
-        users = users.map((user) => {
-            if (user.role === "staff") {
-                const staff = staffProfiles.find(
-                    (profile) =>
-                        profile.userId.toString() === user._id.toString()
-                );
-
-                return {
-                    ...user.toObject(),
-                    staffId: staff?._id,
-                    specialty: staff?.specialty || "",
-                };
-            }
-
-            if (user.role === "outsource") {
-                const outsource = outsourceProfiles.find(
-                    (profile) =>
-                        profile.userId.toString() === user._id.toString()
-                );
-
-                return {
-                    ...user.toObject(),
-                    outsourceId: outsource?._id,
-                    name: outsource?.name,
-                    phone: outsource?.phone,
-                    contactPerson: outsource?.contactPerson,
-                    serviceTypes: outsource?.serviceTypes || [],
-                    status: outsource?.status,
-                };
-            }
-
-            return user.toObject();
-        });
-
-        res.status(200).json(users);
-    } catch (err) {
-        res.status(500).json({
-            err: err.message,
-        });
+    if (req.query.role) {
+      filter.role = req.query.role;
     }
+
+    const users = await User.find(filter);
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ err: error.message });
+  }
 };
 
 const getOneUser = async (req, res) => {

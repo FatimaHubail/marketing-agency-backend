@@ -24,15 +24,9 @@ const taskSchema = new mongoose.Schema({
     },
 
     assignedTo: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    refPath: 'assignedToType'
-},
-
-assignedToType: {
-    type: String,
-    enum: ['Staff', 'Outsource'],
-    required: true
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User',
+  required: true
 },
 
     assignedBy: {
