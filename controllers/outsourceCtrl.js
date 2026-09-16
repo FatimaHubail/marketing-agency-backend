@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
 const Outsource = require('../models/outSource');
 const User = require('../models/user');
 
@@ -116,8 +117,15 @@ const show = async (req, res) => {
             return res.status(401).json({ err: 'Unauthorized' });
         }
 
-        const outsource = await Outsource.findById(req.params.id)
-            .populate('userId', 'username email role');
+        let outsource = null;
+        if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+            outsource = await Outsource.findById(req.params.id)
+                .populate('userId', 'username email role');
+            if (!outsource) {
+                outsource = await Outsource.findOne({ userId: req.params.id })
+                    .populate('userId', 'username email role');
+            }
+        }
 
         if (!outsource) {
             return res.status(404).json({ err: 'Outsource not found' });
@@ -149,7 +157,14 @@ const update = async (req, res) => {
             return res.status(401).json({ err: 'Unauthorized' });
         }
 
-        const outsource = await Outsource.findById(req.params.id);
+        let outsource = null;
+        if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+            outsource = await Outsource.findById(req.params.id);
+            if (!outsource) {
+                outsource = await Outsource.findOne({ userId: req.params.id });
+            }
+        }
+
         if (!outsource) {
             return res.status(404).json({ err: 'Outsource not found' });
         }
