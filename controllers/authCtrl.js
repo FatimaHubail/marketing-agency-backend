@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const Client = require('../models/client');
+const Outsource = require('../models/outSource');
 
 const SALT_ROUNDS = 10;
 
@@ -27,6 +28,11 @@ const login = async (req, res) => {
       const client = await Client.findOne({ user: userInDatabase._id });
       if (client) {
         payload.clientId = client._id;
+      }
+    } else if (userInDatabase.role === 'outsource') {
+      const outsource = await Outsource.findOne({ userId: userInDatabase._id });
+      if (outsource) {
+        payload.outsourceId = outsource._id;
       }
     }
 
