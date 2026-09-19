@@ -1,43 +1,65 @@
-# MarkAura - API (Node.js)
+<div align="center">
+  <img src="./images/logo.svg" alt="MarkAura logo" width="240" />
+</div>
 
-## Project idea & description
+<h1 align="center">MarkAura</h1>
 
-MarkOra is a marketing agency management platform that manages the full lifecycle of a campaign from a client's initial request, through planning and execution by agency staff, to coordination with outsourced partners. Instead of managing this back-and-forth over emails and spreadsheets, MarkOra gives each party (clients, agency staff, and outsource partners) a role-based view of exactly what they need to act on next: clients submit and track campaign requests, staff review requests and manage active campaigns, and outsource agencies handle delegated tasks all through a single, status-driven workflow.
+<p align="center">
+  A role-based marketing agency management platform from campaign request, to execution, to delivery.
+</p>
 
-This repository contains the **Node.js/Express API** for MarkAura.
+<div align="center">
 
-## ScreenShot of MarkAura
 ![MarkAura Landing Page](/images/landingpage.jpeg)
+
+</div>
+
+## Description
+
+MarkAura is a marketing agency management platform that manages the full lifecycle of a campaign from a client's initial request, through planning and execution by agency staff, to coordination with outsourced partners. Instead of managing this back-and-forth over emails and spreadsheets, MarkAura gives each party (clients, agency staff, and outsource partners) a role-based view of exactly what they need to act on next: clients submit and track campaign requests, staff review requests and manage active campaigns, and outsource agencies handle delegated tasks, all through a single, status-driven workflow.
+
+This repository contains the **Node.js/Express API** for MarkAura. The client is a separate React application; see [`marketing-agency-frontend`](https://github.com/FatimaHubail/marketing-agency-frontend).
+
+## Deployment
+
+| Service | Platform | Link |
+|---|---|---|
+| Client (React) | [Vercel](https://vercel.com) | [marketing-agency-frontend-sandy.vercel.app](https://marketing-agency-frontend-sandy.vercel.app/) |
+| API (this repo) | [Render](https://render.com) | <!-- add the live Render URL here --> |
+| Database | [MongoDB Atlas](https://www.mongodb.com/atlas) | — |
 
 ## User Stories
 
 ### Client
 **Account & Profile**
-- As a client, I want to register and log in to the platform, so that I can access my company's campaign data securely.
+- As a client, I want to register and sign in to the platform, so that I can access my company's campaign data securely.
 - As a client, I want to view and update my company profile, so that my contact and industry information stays accurate.
+
+> 📸 _Screenshot: registration form, sign-in form, and the company profile page —_ `images/screenshots/client-account.png`
 
 **Submitting Campaign Requests**
 - As a client, I want to submit a new campaign request with my goals, budget, and preferred channels, so that the agency has everything it needs to start planning.
 - As a client, I want to edit my request while it's still awaiting review, so that I can correct or refine details before staff starts working on it.
-- As a client, I want to cancel a request I submitted, so that I'm not committed to a campaign I no longer need if it hasn't been accepted yet.
+- As a client, I want to delete a request I submitted, so that I'm not committed to a campaign I no longer need if it hasn't been accepted yet.
+
+> 📸 _Screenshot: the new/edit campaign request form —_ `images/screenshots/client-new-request.png`
+
 **Tracking Requests**
-
 - As a client, I want to see a list of all my submitted requests and their statuses, so that I know where each one stands without contacting the agency directly.
-- As a client, I want to view the details of a specific request, including which staff member it's assigned to, so that I know who's handling my account.
+- As a client, I want to view the details of a specific request, so that I can review exactly what I submitted.
 
-**Tracking Active Campaigns**
-- As a client, I want to view the progress of my active campaigns, so that I can stay informed on timeline and budget without needing a status meeting.
-- As a client, I want to see whether an outsource agency has been brought onto my campaign, so that I understand who's contributing to the work, even if I don't see their internal tasks.
+> 📸 _Screenshot: the My Requests table and a request detail page —_ `images/screenshots/client-requests.png`
 
-**Reviewing & Feedback**
-- As a client, I want to review campaign deliverables when they reach the review stage, so that I can confirm they match what I approved.
-- As a client, I want to leave comments or request changes on a campaign draft, so that the agency can revise it before it goes live.
-- As a client, I want to give final approval on a campaign, so that it can move forward to launch only once I'm satisfied.
+**Tracking Campaigns**
+- As a client, I want to view a list of my campaigns and their status (pending, in progress, or completed), so that I can stay informed on progress without needing a status meeting.
+- As a client, I want to view the details of a specific campaign, including its budget, timeline, and preferred channels, so that I have the full picture in one place.
+- As a client, I want to see the tasks currently being worked on for my campaign, so that I know what's actively being done.
+
+> 📸 _Screenshot: the My Campaigns table and a campaign detail page with its tasks —_ `images/screenshots/client-campaigns.png`
 
 **Boundaries**
-
 - As a client, I want my data isolated from other clients, so that I never see requests or campaigns that aren't mine.
-- As a client, I should not be able to change a request's status myself, so that only agency staff can validate and accept work into the pipeline.
+- As a client, I should not be able to change a request's or campaign's status myself, so that only agency staff can validate and move work through the pipeline.
 
 ### Agency staff
 1.  As an agency staff member, I want to view the dashboard so I can see current activities.
@@ -61,6 +83,17 @@ This repository contains the **Node.js/Express API** for MarkAura.
 
 
 
+### Admin
+1. As an admin, I want to sign in securely, so that I can manage the platform's staff and outsource accounts.
+2. As an admin, I want to create a staff account with a specialty, so that they can be assigned campaign work in their area of expertise.
+3. As an admin, I want to create an outsource agency account with its service types, so that staff can delegate matching work to them.
+4. As an admin, I want to view a list of all staff and outsource accounts, so that I have a full picture of who's on the platform.
+5. As an admin, I want to view a single user's account and profile details, so that I can check or troubleshoot their information.
+6. As an admin, I want to edit a staff or outsource account's details (including specialty or service types), so that I can correct or update their information as roles change.
+7. As an admin, I want to delete a staff or outsource account, so that I can remove access once someone is no longer with the agency or partner.
+
+
+
 ### Outsource agency
 1. As an outsource agency, I want to sign up with my details (name, email, service type, password), so that I can create an account and start receiving task requests. 
 2. As an outsource agency, I want to sign in securely, so that I can access my assigned tasks and account. 
@@ -81,22 +114,54 @@ Check out the wireframes sketching out layout and flow of the app covering the s
 
 <div align="center">
 
-[Open Client wireframes in Excalidraw](https://excalidraw.com/#json=HtugvHFQrEdtZtdNZ0Pr-,EjUBjAKtMfTTcD_qsOLgjA)
+[Open Client wireframes in Excalidraw](https://excalidraw.com/#json=KVGBpR8L5VHBhtwp1NIRh,dwFCxrO4mXFGhTGH8-csUg) 
+
+</div>
+
+### Admin WireFrames
+
+<div align="center">
+
+[Open Admin wireframes in Excalidraw](https://excalidraw.com/#json=SvL2zNvDnvWWTRajoaFbH,xYZN4i9fEsJA0UWlOk3d0w) 
+
+</div>
 
 ### Agent Staff WireFrames
 <div align="center">
 
 [Open Agency Staff wireframes in Excalidraw](https://excalidraw.com/#json=V0PU0amix4BDnANgbY0Re,NuTEOwe1H88DcIIhvqFDLg)
 
-
+</div>
 
 ### Outsource Partners Wireframes
 
-</div>
+
 
 ## ERD
-![MarkAura ERD](/images/MarkAura_ERD.jpeg)
+![MarkAura ERD](/images/MarkAura_ERD.png)
 
+## Technologies Used
+
+**Client**
+- React 19
+- React Router 8
+- Vite
+- ESLint
+- Plain CSS (custom design system, no CSS framework)
+
+**API (this repo)**
+- Node.js
+- Express 5
+- MongoDB with Mongoose
+- JSON Web Tokens (`jsonwebtoken`) for authentication
+- `bcrypt` for password hashing
+- `cors`, `morgan`, `dotenv`, `validator`
+
+**Tooling & Deployment**
+- Git & GitHub (feature branches + pull requests)
+- Vercel (client hosting)
+- Render (API hosting)
+- MongoDB Atlas (database hosting)
 
 ## Routing Tables
 
@@ -104,10 +169,8 @@ Check out the wireframes sketching out layout and flow of the app covering the s
 
 | Method | Route | Access | Success | Errors | Notes |
 |---|---|---|---|---|---|
-| POST | `/auth/register` | public (client signup, incl. company fields) | `201 Created` | `400` invalid input · `409` email exists | Creates a `User` + `Client` profile in one call — this is the Register screen's "Create account" submit |
-| POST | `/auth/login` | public | `200 OK` | `400` missing fields · `401` bad credentials | Returns an auth token/session used by every protected route below |
-| GET | `/auth/:id` | authenticated | `200 OK` | `401` no/invalid token | Used on app load to restore the session and populate the topbar user info |
-| POST | `/auth/logout` | authenticated | `200 OK` | `401` no/invalid token | Invalidates the current session/token |
+| POST | `/auth/register` | public (client signup, incl. company fields) | `201 Created` | `400` invalid input · `409` username/email exists | Creates a `User` + `Client` profile in one call, this is the Register screen's "Create account" submit |
+| POST | `/auth/sign-in` | public | `200 OK` | `400` missing fields · `401` bad credentials | Returns a JWT; the client decodes it and stores it in `localStorage`, there is no separate session-restore or logout route, "signing out" just clears the stored token |
 
 ## Client routes
 
@@ -115,14 +178,14 @@ Check out the wireframes sketching out layout and flow of the app covering the s
 |---|---|---|---|---|---|
 | GET | `/clients/:id` | client | `200 OK` | `401` unauthenticated · `404` no client profile | Populates the Company Profile page |
 | PUT | `/clients/:id` | client | `200 OK` | `400` validation · `401` unauthenticated | "Save changes" on the Company Profile page |
-| POST | `/requests` | client | `201 Created` | `400` validation (e.g. invalid goal for type) · `401` unauthenticated | "Submit" on the New Campaign Request form |
-| GET | `/requests` | client (own only) | `200 OK` | `401` unauthenticated | Populates the My Requests table and the dashboard's request stats |
-| GET | `/requests/:id` | client (owner) | `200 OK` | `403` not owner · `404` not found | Backs a request detail view (row expansion or a dedicated page) |
-| PUT | `/requests/:id` | client (owner, `"submitted"` only) | `200 OK` | `400` validation · `403` not owner or already reviewed · `404` not found · `409` status no longer editable | Editing a request before staff starts reviewing it |
+| POST | `/requests` | client | `201 Created` | `400` validation (e.g. invalid goal for type) | "Submit" on the New Campaign Request form |
+| GET | `/requests` | client (own only) | `200 OK` | `401` unauthenticated | Populates the My Requests table |
+| GET | `/requests/:id` | client (owner) | `200 OK` | `403` not owner · `404` not found | Backs the request detail page |
+| PUT | `/requests/:id` | client (owner, `"submitted"` only) | `200 OK` | `400` validation · `403` not owner or already reviewed · `404` not found | Editing a request before staff starts reviewing it |
 | DELETE | `/requests/:id` | client (owner, `"submitted"` only) | `204 No Content` | `403` not owner or already reviewed · `404` not found | The delete button on the My Requests page, only while still pending |
-| GET | `/campaigns` | client (own only) | `200 OK` | `401` unauthenticated | Populates the My Campaigns page and its status tabs |
-| GET | `/campaigns/:id` | client (owner) | `200 OK` | `403` not owner · `404` not found | Populates the Campaign Detail page (stepper, budget bar, review area) |
-| PUT | `/campaigns/:id/review` | client (owner, `"client_review"` status only) | `200 OK` | `400` missing decision · `403` not owner or wrong status · `404` not found | "Approve" / "Request changes" buttons on the Campaign Detail page |
+| GET | `/campaigns` | client (own only) · staff/admin (all) · outsource (own only) | `200 OK` | `401` unauthenticated | Populates the My Campaigns page |
+| GET | `/campaigns/:id` | client (owner) · staff/admin (any) · outsource (own only) | `200 OK` | `403` not authorized · `404` not found | Populates the Campaign Detail page |
+| GET | `/tasks/campaign/:campaignId` | client (owner) · staff/admin (any) · outsource (own only) | `200 OK` | `403` not authorized · `404` not found | Lists every task assigned to that campaign, shown on the Campaign Detail page |
 
 ### Agency staff routes
 | Method | Path | Purpose |
@@ -140,6 +203,15 @@ Check out the wireframes sketching out layout and flow of the app covering the s
 | PUT | `/clients/:id` | Update client |
 | DELETE | `/clients/:id` | Delete client |
 
+### Admin routes
+
+| Method | Route | Access | Success | Errors | Notes |
+|---|---|---|---|---|---|
+| POST | `/admin/users` | admin | `201 Created` | `400` invalid role · `409` username exists | Creates a `staff` or `outsource` account (plus its `Staff`/`Outsource` profile) from the Admin User Management page |
+| GET | `/admin/users` | admin | `200 OK` | `401` unauthenticated | Populates the Admin User Management table; each `staff`/`outsource` user is enriched with their specialty/service types |
+| GET | `/admin/users/:id` | admin | `200 OK` | `404` not found | Returns a single user plus their `Staff`/`Outsource` profile, if any |
+| PUT | `/admin/users/:id` | admin | `200 OK` | `400` invalid role · `404` not found | Edits a user's account fields and, for staff/outsource, their profile fields |
+| DELETE | `/admin/users/:id` | admin | `200 OK` | `404` not found | Deletes the user and their `Staff`/`Outsource` profile, if any |
 
 ### Outsource partners routes
 | Method | Route | Access | Success | Errors | Notes |
@@ -153,3 +225,15 @@ Check out the wireframes sketching out layout and flow of the app covering the s
 | GET | `outsource/tasks` | outsource (own only) | `200 OK` | `401` unauthenticated | Populates the outsource partner's task list — only tasks assigned to them, never other partners' work |
 | GET | `outsource/tasks/:id` | outsource (assigned only) | `200 OK` | `403` not assigned · `404` not found | Backs the task detail view; campaign is populated with limited fields only (e.g. `title`, `deadline`) — never full campaign details |
 | PUT | `outsource/tasks/:id/status` | outsource (assigned only) | `200 OK` | `400` invalid status transition · `403` not assigned · `404` not found | Moves the task through its status enum (e.g. `in_progress` → `submitted` → `revisions_requested` → `completed`) |
+
+## Future Features
+
+- A client-facing campaign review/approval step (approve, request changes, leave feedback) before a campaign goes live
+- Staff departments with manager to assign tasks to staff/outsource
+- In-app notifications when a request is accepted/rejected, a task is assigned, or a campaign is completed
+- File/asset uploads on campaign requests and tasks (briefs, deliverables)
+- Search and filtering across requests, campaigns, and tasks on the staff dashboard
+
+## Attributions
+
+Built during General Assembly's Software Engineering bootcamp
