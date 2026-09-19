@@ -24,7 +24,7 @@ This repository contains the **Node.js/Express API** for MarkAura. The client is
 
 | Service | Platform | Link |
 |---|---|---|
-| Client (React) | [Vercel](https://vercel.com) | [marketing-agency-frontend-sandy.vercel.app](https://marketing-agency-frontend-sandy.vercel.app/) |
+| Client (React) | [Vercel](https://vercel.com) | [marketing-agency-frontend-theta.vercel.app](https://marketing-agency-frontend-theta.vercel.app/) |
 | API (this repo) | [Render](https://render.com) | <!-- add the live Render URL here --> |
 | Database | [MongoDB Atlas](https://www.mongodb.com/atlas) | — |
 
